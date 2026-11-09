@@ -68,6 +68,9 @@ KEEL_DEPTH = 5.0             # extra depth below the crossbar underside. Keep it
                              #   ABOVE the water line or ice freezes around it
                              #   (old part had 2 mm and was fine)
 KEEL_X = (16.0, 36.0)        # along the narrow part of the groove
+WIDE_FROM = None             # if set (e.g. 30): from this X to the wall, the slot is
+                             #   GROOVE_WIDE_W wide through the keel too, to clear the
+                             #   blade's thicker base near the hub
 KEEL_TAPER = True            # 45 deg slope up to the bar at the wall end, to clear
                              #   the blade's thicker base (where the groove widens)
 
@@ -113,6 +116,9 @@ def grooves(keel_depth=0.0, groove_w=None):
         GROOVE_X[1] - GROOVE_X[0] + 1, BAR_Y0 + GROOVE_DEPTH - y0, groove_w, align=MIN)
     g += Pos(GROOVE_WIDE_X[0], BAR_Y0 - 1, c - GROOVE_WIDE_W / 2) * Box(
         GROOVE_WIDE_X[1] - GROOVE_WIDE_X[0] + 0.01, GROOVE_DEPTH + 1, GROOVE_WIDE_W, align=MIN)
+    if WIDE_FROM is not None:
+        g += Pos(WIDE_FROM, y0, c - GROOVE_WIDE_W / 2) * Box(
+            GROOVE_WIDE_X[1] - WIDE_FROM + 0.01, BAR_Y0 + GROOVE_DEPTH - y0, GROOVE_WIDE_W, align=MIN)
     return g
 
 
@@ -185,7 +191,28 @@ def write(part, name, step=True):
     print(f"wrote {name}  volume={part.volume:.0f} mm3  size={bb.X:.1f} x {bb.Y:.1f} x {bb.Z:.1f}")
 
 
+# Where does the keel hit the blade's thick base near the wall? (3 mm keel, 2.2 slot)
+WALL_FIT_TESTS = [       # (label, keel X range, widen slot from X)
+    ("E30", (16.0, 30.0), None),
+    ("E26", (16.0, 26.0), None),
+    ("W30", (16.0, 36.0), 30.0),
+]
+
 if __name__ == "__main__":
+    if "--wall-fit-test" in sys.argv:
+        tests, x = [], 0.0
+        for label, kx, wide in WALL_FIT_TESTS:
+            KEEL_X, WIDE_FROM = kx, wide
+            t = fit_test(label, GROOVE_W, 3.0)
+            bb = t.bounding_box()
+            tests.append(Pos(x, 0, 0) * t)
+            x += bb.size.X + 8
+        write(Compound(tests), "ice-tooth_wall-fit-test_print", step=False)
+        mesher = Mesher()
+        for t in tests:
+            mesher.add_shape(t)
+        mesher.write(str(OUT / "ice-tooth_wall-fit-test_print.3mf"))
+        sys.exit()
     if "--rebuild" in sys.argv:
         write(clip(with_keel=False), "ice-tooth_rebuild", step=False)
     elif "--keel" in sys.argv:

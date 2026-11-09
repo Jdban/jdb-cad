@@ -39,6 +39,11 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
   closing the slot bottom so the slot ceiling is a short bridge. Cut the skin off
   before installing. Added 1 mm lead-in chamfers on the hook tip and notch mouth.
 
+- With the arm removed, the 3 mm keel tooth sat down but would not slide all the
+  way out to the wall (stopped a few mm short). Likely the keel's narrow slot
+  hitting the blade's thicker base near the hub (the old 2 mm groove rode above it).
+  Wall-end fit test printed: E30 / E26 (keel ends earlier), W30 (slot 5 mm near wall).
+
 ## Open
 - Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
   overnight part while the ice maker is first switched back on (2026-11-08).

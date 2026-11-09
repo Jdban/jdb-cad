@@ -1,0 +1,8 @@
+{
+  "title": "Wall-end fit test (E30 / E26 / W30), tops only",
+  "settings": [
+    ["Filament", "Anything loaded", "Test only"],
+    ["Wall loops", "6", "Default 2"]
+  ],
+  "note": "No supports. Don't auto-orient: each piece stands on its tip. Pick the one that slides all the way out to the wall and still grips the blade."
+}
