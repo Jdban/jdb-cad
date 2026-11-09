@@ -1,0 +1,8 @@
+{
+  "title": "Ice tooth fit-test tops (5 pieces)",
+  "settings": [
+    ["Filament", "PETG or PLA", "Test only; whatever is loaded"],
+    ["Wall loops", "6", "Default 2"]
+  ],
+  "note": "Leave supports off. Don't auto-orient: each piece stands on its tip."
+}

@@ -1,0 +1,10 @@
+build123d
+bd_warehouse
+trimesh
+numpy
+matplotlib
+scipy
+rtree
+manifold3d
+shapely
+networkx

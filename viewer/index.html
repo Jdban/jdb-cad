@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Viewer</title>
+<style>
+  :root { --bg:#16181d; --panel:#20232a; --text:#e6e6e6; --muted:#8b919c; --accent:#4da3ff; --border:#2e323b; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font:13px/1.4 system-ui, sans-serif; overflow:hidden; }
+  #app { display:flex; height:100%; }
+  #side { width:300px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; }
+  #side h1 { font-size:14px; margin:0; padding:12px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  #status { font-size:11px; font-weight:normal; color:var(--muted); }
+  #list { flex:1; overflow:auto; padding:6px 0; }
+  .item { padding:7px 14px; display:flex; gap:8px; align-items:flex-start; cursor:pointer; border-left:3px solid transparent; }
+  .item:hover { background:#272b33; }
+  .item.on { border-left-color:var(--c); }
+  .item input { margin-top:2px; accent-color:var(--c); }
+  .item .name { word-break:break-all; }
+  .item .meta { color:var(--muted); font-size:11px; }
+  .item .name:hover { text-decoration:underline; }
+  .item .dl { color:var(--muted); text-decoration:none; font-size:15px; padding:0 4px; border-radius:4px; }
+  .item .dl:hover { color:var(--text); background:#353b46; }
+  .group { padding:10px 14px 4px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+  .item.flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background:#3a4a2a; } to { background:transparent; } }
+  #controls { border-top:1px solid var(--border); padding:10px 14px; display:grid; gap:6px; }
+  #controls label { display:flex; gap:8px; align-items:center; cursor:pointer; }
+  #controls button { background:#2c313a; color:var(--text); border:1px solid var(--border); border-radius:4px; padding:5px 8px; cursor:pointer; }
+  #controls button:hover { background:#353b46; }
+  #view { flex:1; position:relative; }
+  .tools { display:grid; gap:6px; border-top:1px solid var(--border); padding-top:8px; }
+  .tools .row { display:flex; gap:6px; align-items:center; }
+  .tools select { background:#2c313a; color:var(--text); border:1px solid var(--border); border-radius:4px; }
+  #measure.on { background:#1f6feb; border-color:#1f6feb; }
+  #mlabel { position:absolute; right:12px; bottom:12px; background:rgba(31,111,235,.92); color:#fff; border-radius:6px; padding:8px 10px; font:13px/1.5 ui-monospace, monospace; display:none; white-space:pre; }
+  canvas { display:block; }
+  #hud { position:absolute; left:12px; bottom:12px; background:rgba(20,22,27,.85); border:1px solid var(--border); border-radius:6px; padding:8px 10px; font:12px/1.5 ui-monospace, monospace; pointer-events:none; white-space:pre; }
+  #settings { position:absolute; left:12px; top:12px; max-width:min(460px, calc(100% - 24px)); max-height:calc(100% - 140px); overflow:auto; display:grid; gap:10px; }
+  .card { background:rgba(20,22,27,.92); border:1px solid var(--border); border-left:3px solid var(--c); border-radius:6px; padding:10px 12px; }
+  .card h2 { font-size:13px; margin:0 0 2px; }
+  .card .sub { color:var(--muted); font-size:11px; margin-bottom:8px; }
+  .card table { border-collapse:collapse; width:100%; font-size:12px; }
+  .card td { padding:3px 8px 3px 0; vertical-align:top; border-top:1px solid var(--border); }
+  .card td.k { color:var(--muted); white-space:nowrap; }
+  .card td.v { font-weight:600; white-space:nowrap; }
+  .card td.w { color:var(--muted); font-size:11px; }
+  .card .note { margin-top:8px; font-size:12px; color:#ffcf6b; }
+  .badge { font-size:10px; color:var(--accent); border:1px solid var(--accent); border-radius:3px; padding:0 3px; margin-left:4px; }
+  #help { position:absolute; right:12px; top:12px; color:var(--muted); font-size:11px; text-align:right; pointer-events:none; }
+  @media (max-width: 700px) { #app { flex-direction:column; } #side { width:100%; height:40%; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+  <div id="side">
+    <h1>Models <span id="status">connecting…</span></h1>
+    <div id="list"></div>
+    <div id="controls">
+      <label><input type="checkbox" id="wire"> Wireframe</label>
+      <label><input type="checkbox" id="edges" checked> Edges</label>
+      <label><input type="checkbox" id="xray"> See-through (compare overlaps)</label>
+      <label><input type="checkbox" id="follow" checked> Auto-show newest change</label>
+      <label><input type="checkbox" id="arrange" checked> Arrange side by side (off = real positions)</label>
+      <label><input type="checkbox" id="showall"> Show all files (originals, rebuilds, old versions)</label>
+      <div style="display:flex;gap:6px">
+        <button id="fit" style="flex:1">Fit view</button>
+        <button id="hideall" style="flex:1">Hide all</button>
+      </div>
+      <div class="tools">
+        <label><input type="checkbox" id="overhang"> Show overhangs (red = needs support)</label>
+        <label><input type="checkbox" id="bed"> Show print bed (<span id="bedsize"></span> mm)</label>
+        <div class="row">Section
+          <select id="secaxis"><option value="">off</option><option>X</option><option>Y</option><option>Z</option></select>
+          <input type="range" id="secpos" min="0" max="1000" value="500" style="flex:1" disabled>
+          <label title="keep the other side"><input type="checkbox" id="secflip"> flip</label>
+        </div>
+        <div class="row"><button id="measure" style="flex:1">📏 Measure</button><button id="clearmeasure">clear</button></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button data-view="front" style="flex:1">Front</button>
+        <button data-view="top" style="flex:1">Top</button>
+        <button data-view="side" style="flex:1">Side</button>
+        <button data-view="iso" style="flex:1">Iso</button>
+      </div>
+    </div>
+  </div>
+  <div id="view">
+    <div id="hud"></div>
+    <div id="settings"></div>
+    <div id="mlabel"></div>
+    <div id="help">drag: rotate · right-drag: pan · scroll: zoom<br>grid: 10 mm squares</div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+THREE.Object3D.DEFAULT_UP.set(0, 0, 1); // models are Z-up (mm)
+
+// Model colours. No reds or pinks: red is reserved for overhangs.
+const PALETTE = ['#4da3ff', '#ff9a3d', '#5fd38d', '#b46cff', '#ffd23f', '#3dd6d0',
+  '#a98bff', '#9ccc3d', '#6e8bff', '#c8a26b', '#7fb2c9', '#00b39e'];
+function colorFor(path) {
+  let h = 0;
+  for (const ch of path) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+const view = document.getElementById('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.localClippingEnabled = true;
+const BED = [256, 256];               // print bed size (mm); Bambu P1S/X1C
+document.getElementById('bedsize').textContent = BED.join(' × ');
+const clipPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+const OVERHANG_COS = -Math.cos(Math.PI / 4);   // steeper than 45 deg facing down
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#16181d');
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 10000);
+camera.position.set(150, -200, 150);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x404050, 1.2));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(1, -1.5, 2); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(-1, 1, 0.5); scene.add(fill);
+
+let grid = null;
+function makeGrid(size) {
+  if (grid) scene.remove(grid);
+  const n = Math.max(10, Math.ceil(size / 10) * 2);
+  grid = new THREE.GridHelper(n * 10, n, 0x3a3f4a, 0x262a31);
+  grid.rotation.x = Math.PI / 2;
+  scene.add(grid);
+}
+scene.add(new THREE.AxesHelper(20));   // red X, green Y, blue Z (world axes)
+makeGrid(200);
+
+const models = new Map(); // path -> {mtime, color, visible, obj, info}
+let colorIdx = 0;
+const stl = new STLLoader();
+const objLoader = new OBJLoader();
+
+function fmt(n) { return n.toFixed(2); }
+
+async function loadModel(path, mtime) {
+  const url = '/' + path.split('/').map(encodeURIComponent).join('/') + '?t=' + mtime;
+  const m = models.get(path);
+  let group;
+  if (path.toLowerCase().endsWith('.stl')) {
+    const geom = await stl.loadAsync(url);
+    geom.computeVertexNormals();
+    group = new THREE.Group();
+    group.add(new THREE.Mesh(geom));
+  } else {
+    group = await objLoader.loadAsync(url);
+  }
+  const zmin = new THREE.Box3().setFromObject(group).min.z;
+  group.traverse(o => {
+    if (o.isMesh) {
+      if (o.geometry.index) o.geometry = o.geometry.toNonIndexed();
+      o.userData.overhang = overhangMask(o.geometry, zmin);
+      o.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(o.geometry.attributes.position.count * 3), 3));
+      o.material = new THREE.MeshStandardMaterial({ color: m.color, roughness: 0.55, metalness: 0.05, side: THREE.DoubleSide, flatShading: true });
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45 }));
+      e.userData.isEdge = true;
+      o.add(e);
+    }
+  });
+  const box = new THREE.Box3().setFromObject(group);
+  const size = box.getSize(new THREE.Vector3());
+  let tris = 0;
+  group.traverse(o => { if (o.isMesh) tris += o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3; });
+  if (m.obj) {   // free the previous version's GPU memory
+    scene.remove(m.obj);
+    m.obj.traverse(o => { o.geometry?.dispose(); o.material?.dispose(); });
+  }
+  m.obj = group;
+  m.info = { box, size, tris };
+  m.loadedMtime = mtime;
+  applyStyle();
+  group.visible = m.visible;
+  scene.add(group);
+}
+
+// Per-triangle flag: faces pointing down more than 45 deg that aren't on the bed.
+function overhangMask(geom, zmin) {
+  const pos = geom.attributes.position, n = pos.count / 3, mask = new Uint8Array(n);
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  const ab = new THREE.Vector3(), ac = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    a.fromBufferAttribute(pos, 3 * i); b.fromBufferAttribute(pos, 3 * i + 1); c.fromBufferAttribute(pos, 3 * i + 2);
+    const nz = ab.subVectors(b, a).cross(ac.subVectors(c, a)).normalize().z;
+    const onBed = Math.max(a.z, b.z, c.z) < zmin + 0.3;
+    mask[i] = nz < OVERHANG_COS && !onBed ? 1 : 0;
+  }
+  return mask;
+}
+
+function paintOverhangs(mesh, base, on) {
+  const key = base + on;
+  if (mesh.userData.painted === key) return;   // nothing changed
+  mesh.userData.painted = key;
+  const col = mesh.geometry.attributes.color, mask = mesh.userData.overhang;
+  const bc = new THREE.Color(base), red = new THREE.Color('#ff2a2a');
+  for (let i = 0; i < mask.length; i++) {
+    const c = mask[i] ? red : bc;
+    for (let k = 0; k < 3; k++) col.setXYZ(3 * i + k, c.r, c.g, c.b);
+  }
+  col.needsUpdate = true;
+  if (mesh.material.vertexColors !== on) { mesh.material.vertexColors = on; mesh.material.needsUpdate = true; }
+  mesh.material.color.set(on ? '#ffffff' : base);
+}
+
+// Give every visible model a distinct colour (file-name colours can collide).
+function assignColors() {
+  const used = new Set();
+  for (const m of models.values()) {
+    if (!m.visible) { m.color = m.baseColor; continue; }
+    let i = PALETTE.indexOf(m.baseColor), c = m.baseColor;
+    for (let n = 0; used.has(c) && n < PALETTE.length; n++) { i = (i + 1) % PALETTE.length; c = PALETTE[i]; }
+    used.add(c); m.color = c;
+    if (m.obj) m.obj.traverse(o => { if (o.isMesh && !o.material.vertexColors) o.material.color.set(c); });
+  }
+}
+
+function applyStyle() {
+  assignColors();
+  const wire = document.getElementById('wire').checked;
+  const edges = document.getElementById('edges').checked;
+  const xray = document.getElementById('xray').checked;
+  const over = document.getElementById('overhang').checked;
+  const clips = document.getElementById('secaxis').value ? [clipPlane] : [];
+  for (const m of models.values()) {
+    if (!m.obj) continue;
+    m.obj.traverse(o => {
+      if (o.material) o.material.clippingPlanes = clips;
+      if (o.isMesh) {
+        if (over || o.material.vertexColors) paintOverhangs(o, m.color, over);
+        o.material.wireframe = wire;
+        o.material.transparent = xray;
+        o.material.opacity = xray ? 0.45 : 1;
+        o.material.depthWrite = !xray;
+      }
+      if (o.userData.isEdge) o.visible = edges && !wire;
+    });
+  }
+  layout();
+  updateSection();
+  updateBed();
+  updateHud();
+}
+
+// ---- section plane: keep everything on one side of an X/Y/Z cut
+function updateSection() {
+  const axis = document.getElementById('secaxis').value;
+  const slider = document.getElementById('secpos');
+  slider.disabled = !axis;
+  if (!axis) return;
+  const box = visibleBox();
+  if (box.isEmpty()) return;
+  const k = axis.toLowerCase(), t = slider.value / 1000;
+  const v = box.min[k] + (box.max[k] - box.min[k]) * t;
+  const flip = document.getElementById('secflip').checked ? -1 : 1;
+  const n = new THREE.Vector3(); n[k] = -flip;
+  clipPlane.set(n, flip * v);   // keeps points where n·p + c >= 0
+}
+
+// ---- print bed outline, centred under what's shown
+let bedLine = null;
+function updateBed() {
+  if (bedLine) { scene.remove(bedLine); bedLine = null; }
+  if (!document.getElementById('bed').checked) return;
+  const box = visibleBox();
+  const c = box.isEmpty() ? new THREE.Vector3() : box.getCenter(new THREE.Vector3());
+  const [w, d] = BED, z = 0.05;
+  const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, d / 2], [-w / 2, d / 2]]
+    .map(([x, y]) => new THREE.Vector3(c.x + x, c.y + y, z));
+  bedLine = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color: 0xffd23f }));
+  scene.add(bedLine);
+}
+
+// ---- click-to-measure between two points on the models
+let measuring = false, mpts = [], mobjs = [];
+const ray = new THREE.Raycaster();
+function clearMeasure() {
+  for (const o of mobjs) scene.remove(o);
+  mobjs = []; mpts = [];
+  document.getElementById('mlabel').style.display = 'none';
+}
+function addMeasurePoint(p) {
+  if (mpts.length === 2) clearMeasure();
+  mpts.push(p.clone());
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(visibleBox().getSize(new THREE.Vector3()).length() / 250 + 0.3),
+    new THREE.MeshBasicMaterial({ color: 0x1f6feb, depthTest: false }));
+  dot.position.copy(p); dot.renderOrder = 10; scene.add(dot); mobjs.push(dot);
+  const label = document.getElementById('mlabel');
+  if (mpts.length === 2) {
+    const [a, b] = mpts, d = b.clone().sub(a);
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]),
+      new THREE.LineBasicMaterial({ color: 0x1f6feb, depthTest: false }));
+    line.renderOrder = 10; scene.add(line); mobjs.push(line);
+    label.textContent = `distance ${d.length().toFixed(2)} mm\n  dx ${Math.abs(d.x).toFixed(2)}  dy ${Math.abs(d.y).toFixed(2)}  dz ${Math.abs(d.z).toFixed(2)}`;
+  } else {
+    label.textContent = 'click a second point';
+  }
+  label.style.display = 'block';
+}
+let downAt = null;
+renderer.domElement.addEventListener('pointerdown', e => { downAt = e.button === 0 ? [e.clientX, e.clientY] : null; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!measuring || !downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const meshes = [];
+  for (const m of models.values()) if (m.visible && m.obj) m.obj.traverse(o => { if (o.isMesh) meshes.push(o); });
+  const clipOn = !!document.getElementById('secaxis').value;
+  const hit = ray.intersectObjects(meshes, false).find(h => !clipOn || clipPlane.distanceToPoint(h.point) >= 0);
+  if (hit) addMeasurePoint(hit.point);
+});
+
+// Side by side: line visible models up along X with a gap, centred on Y=0.
+function layout() {
+  const arrange = document.getElementById('arrange').checked;
+  let cursor = 0;
+  for (const m of models.values()) {
+    if (!m.obj) continue;
+    if (!arrange || !m.visible) { m.obj.position.set(0, 0, 0); continue; }
+    const b = m.info.box;
+    m.obj.position.set(cursor - b.min.x, -(b.min.y + b.max.y) / 2, 0);
+    cursor += (b.max.x - b.min.x) + 30;
+  }
+  if (arrange) {
+    for (const m of models.values()) if (m.obj && m.visible) m.obj.position.x -= cursor / 2;
+  }
+}
+
+function visibleBox() {
+  const box = new THREE.Box3();
+  for (const m of models.values()) if (m.visible && m.obj) box.union(new THREE.Box3().setFromObject(m.obj));
+  return box;
+}
+
+function esc(t) { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; }
+
+function renderSettings() {
+  const box = document.getElementById('settings');
+  const cards = [];
+  for (const [path, m] of models) {
+    if (!m.visible || !m.settings) continue;
+    const st = m.settings;
+    const rows = (st.settings || []).map(([k, v, why]) =>
+      `<tr><td class="k">${esc(k)}</td><td class="v">${esc(v)}</td><td class="w">${esc(why)}</td></tr>`).join('');
+    cards.push(`<div class="card" style="--c:${m.color}"><h2>${esc(st.title || path.split('/').pop())}</h2>
+      <div class="sub">${esc(st.base || '')}</div><table>${rows}</table>
+      ${st.note ? `<div class="note">${esc(st.note)}</div>` : ''}</div>`);
+  }
+  const html = cards.join('');
+  if (box.dataset.html !== html) { box.innerHTML = html; box.dataset.html = html; }
+}
+
+function updateHud() {
+  renderSettings();
+  const lines = [];
+  for (const [path, m] of models) {
+    if (!m.visible || !m.info) continue;
+    const s = m.info.size, b = m.info.box;
+    lines.push(`${path.split('/').pop()}\n  size  ${fmt(s.x)} × ${fmt(s.y)} × ${fmt(s.z)} mm\n  min   ${fmt(b.min.x)}, ${fmt(b.min.y)}, ${fmt(b.min.z)}\n  tris  ${m.info.tris}`);
+  }
+  document.getElementById('hud').textContent = lines.join('\n') || 'nothing shown';
+  document.getElementById('hud').style.display = 'block';
+}
+
+function setView(name) {
+  const box = visibleBox();
+  if (box.isEmpty()) return;
+  const c = box.getCenter(new THREE.Vector3());
+  const r = box.getSize(new THREE.Vector3()).length() || 100;
+  const d = r * 1.4;
+  const dirs = { front: [0, -1, 0.0001], top: [0, -0.0001, 1], side: [1, 0, 0.0001], iso: [0.8, -1, 0.75] };
+  const v = new THREE.Vector3(...(dirs[name] || dirs.iso)).normalize().multiplyScalar(d);
+  camera.position.copy(c).add(v);
+  controls.target.copy(c);
+  camera.near = r / 100; camera.far = r * 50; camera.updateProjectionMatrix();
+  makeGrid(Math.max(box.max.x - box.min.x, box.max.y - box.min.y) + Math.max(Math.abs(c.x), Math.abs(c.y)) * 2);
+  controls.update();
+}
+
+async function show(path, on) {
+  const m = models.get(path);
+  m.visible = on;
+  if (on && !m.obj) await loadModel(path, m.mtime);
+  if (m.obj) m.obj.visible = on;
+}
+
+let listSig = '';
+function renderList(force = false) {
+  const list = document.getElementById('list');
+  // Only rebuild when something visible in the list changed (keeps hover/clicks intact).
+  const sig = JSON.stringify([document.getElementById('showall').checked, focusShow, Math.floor(Date.now() / 30000),
+    [...models].map(([p, m]) => [p, m.mtime, m.visible, m.color, !!m.settings, !!m.flash])]);
+  if (!force && sig === listSig) return;
+  listSig = sig;
+  list.innerHTML = '';
+  const folderOf = p => p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '(top level)';
+  const entries = [...models].sort((a, b) =>
+    folderOf(a[0]).localeCompare(folderOf(b[0])) || b[1].mtime - a[1].mtime);
+  let lastFolder = null;
+  const showAll = document.getElementById('showall').checked;
+  let hidden = 0;
+  for (const [path, m] of entries) {
+    // default list: print-ready files, whatever is in focus, and anything currently shown
+    const current = /_print/.test(path) || focusShow.includes(path) || m.visible;
+    if (!showAll && !current) { hidden++; continue; }
+    const folder = folderOf(path);
+    if (folder !== lastFolder) {
+      const g = document.createElement('div');
+      g.className = 'group'; g.textContent = folder;
+      list.appendChild(g); lastFolder = folder;
+    }
+    const div = document.createElement('div');
+    div.className = 'item' + (m.visible ? ' on' : '') + (m.flash ? ' flash' : '');
+    m.flash = false;
+    div.style.setProperty('--c', m.color);
+    const ago = Math.round((Date.now() / 1000 - m.mtime));
+    const when = ago < 60 ? `${ago}s ago` : ago < 3600 ? `${Math.round(ago / 60)}m ago` : new Date(m.mtime * 1000).toLocaleString();
+    div.innerHTML = `<input type="checkbox" ${m.visible ? 'checked' : ''}><div style="flex:1"><div class="name"></div><div class="meta">${(m.size / 1024).toFixed(1)} KB · ${when}</div></div><a class="dl" title="Download">⬇</a>`;
+    const dl = div.querySelector('.dl');
+    dl.href = '/' + path.split('/').map(encodeURIComponent).join('/');
+    dl.download = path.split('/').pop();
+    dl.onclick = ev => ev.stopPropagation();
+    div.querySelector('.name').textContent = path.split('/').pop();
+    if (m.settings) div.querySelector('.name').insertAdjacentHTML('beforeend', '<span class="badge">settings</span>');
+    div.title = 'Click name: show only this · checkbox: add/remove';
+    div.querySelector('input').onclick = async (ev) => {
+      ev.stopPropagation();
+      await show(path, !m.visible);
+      applyStyle(); renderList();
+    };
+    div.onclick = async () => {  // solo
+      for (const p of models.keys()) if (p !== path) await show(p, false);
+      await show(path, true);
+      applyStyle(); renderList(); setView('iso');
+    };
+    list.appendChild(div);
+  }
+  if (hidden) {
+    const more = document.createElement('div');
+    more.className = 'group'; more.style.cursor = 'pointer';
+    more.textContent = `+ ${hidden} more files hidden (show all)`;
+    more.onclick = () => { document.getElementById('showall').checked = true; saveShowAll(); renderList(); };
+    list.appendChild(more);
+  }
+}
+
+let first = true;
+let focusShow = [];
+let lastFocus = null;
+async function poll() {
+  try {
+    const res = await fetch('/api/models', { cache: 'no-store' });
+    const data = await res.json();
+    const items = data.models, focus = data.focus;
+    document.getElementById('status').textContent = 'live';
+    const seen = new Set();
+    let changed = null;
+    for (const it of items) {
+      seen.add(it.path);
+      let m = models.get(it.path);
+      if (m) m.settings = it.settings;
+      if (!m) {
+        m = { mtime: it.mtime, size: it.size, color: colorFor(it.path), baseColor: colorFor(it.path), visible: false, obj: null };
+        m.settings = it.settings;
+        models.set(it.path, m);
+        if (!first) { m.flash = true; changed = changed || it.path; }
+      } else if (it.mtime !== m.mtime) {
+        m.mtime = it.mtime; m.size = it.size; m.flash = true;
+        changed = changed || it.path;
+        if (m.obj) await loadModel(it.path, it.mtime);
+      }
+    }
+    for (const p of [...models.keys()]) if (!seen.has(p)) { const m = models.get(p); if (m.obj) scene.remove(m.obj); models.delete(p); }
+    // keep list ordered newest first
+    const sorted = new Map([...models].sort((a, b) => b[1].mtime - a[1].mtime));
+    models.clear(); for (const [k, v] of sorted) models.set(k, v);
+
+    focusShow = focus ? focus.show : [];
+    const focusKey = focus ? JSON.stringify(focus.show) : null;   // content only: rewriting the same list keeps your view
+    const wanted = focus ? focus.show.filter(p => models.has(p)) : [];
+    if (wanted.length && focusKey !== lastFocus) {
+      // focus list changed (or first load): show exactly those models
+      lastFocus = focusKey;
+      for (const p of models.keys()) await show(p, wanted.includes(p));
+      applyStyle(); setView('iso');
+    } else if (first && items.length) {
+      await show(items[0].path, true);
+      applyStyle(); setView('iso');
+    } else if (changed && !wanted.length && document.getElementById('follow').checked) {
+      const m = models.get(changed);
+      if (!m.visible) await show(changed, true);
+    }
+    first = false;
+    applyStyle(); renderList();
+  } catch (e) {
+    document.getElementById('status').textContent = 'offline';
+  }
+  setTimeout(poll, 1500);
+}
+
+document.getElementById('wire').onchange = applyStyle;
+document.getElementById('edges').onchange = applyStyle;
+document.getElementById('xray').onchange = applyStyle;
+document.getElementById('arrange').onchange = () => { applyStyle(); setView('iso'); };
+function saveShowAll() { try { localStorage.setItem('showall', document.getElementById('showall').checked ? '1' : ''); } catch (e) {} }
+try { document.getElementById('showall').checked = localStorage.getItem('showall') === '1'; } catch (e) {}
+document.getElementById('showall').onchange = () => { saveShowAll(); renderList(); };
+document.getElementById('fit').onclick = () => setView('iso');
+for (const id of ['overhang', 'bed', 'secaxis', 'secflip']) document.getElementById(id).onchange = applyStyle;
+document.getElementById('secpos').oninput = () => updateSection();
+document.getElementById('measure').onclick = () => {
+  measuring = !measuring;
+  document.getElementById('measure').classList.toggle('on', measuring);
+  renderer.domElement.style.cursor = measuring ? 'crosshair' : '';
+  if (!measuring) clearMeasure();
+};
+document.getElementById('clearmeasure').onclick = clearMeasure;
+document.getElementById('hideall').onclick = async () => {
+  for (const p of models.keys()) await show(p, false);
+  applyStyle(); renderList();
+};
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize); resize();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+poll();
+</script>
+</body>
+</html>

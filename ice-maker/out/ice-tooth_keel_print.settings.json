@@ -1,0 +1,21 @@
+{
+  "title": "Ice maker tooth (keel)",
+  "settings": [
+    [
+      "Filament",
+      "PETG (colored)",
+      "Pick any PETG preset, e.g. Generic PETG"
+    ],
+    [
+      "Wall loops",
+      "6",
+      "Default 2"
+    ],
+    [
+      "Sparse infill density",
+      "100%",
+      "Default 15%"
+    ]
+  ],
+  "note": "Leave supports off. Don't auto-orient: it's already standing the right way. Keel is 5 mm deep: must stay above the water line."
+}
