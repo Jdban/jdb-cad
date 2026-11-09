@@ -114,8 +114,14 @@
     {
       "kind": "photo",
       "state": "have",
-      "what": "I5 installed",
-      "file": "photos/i5-installed.png"
+      "what": "I5 installed (labeled)",
+      "file": "photos/i5-installed_labeled.png"
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "I5 part diagram",
+      "file": "photos/i5-diagram.png"
     }
   ]
 }
