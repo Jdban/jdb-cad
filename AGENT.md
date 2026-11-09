@@ -98,6 +98,17 @@ learn a constraint ("keel must stay above the water line", "2.2 mm slot fits").
 - Assign the next ID when you export a print file, and log the result when the
   user reports back. Mention the ID whenever you talk about a part.
 
+## Project tracker
+
+`http://localhost:8765/tracker` lists, per project, what the user has provided
+and what you still need (measurements, decisions, photos, pending tests), from
+`<project>/tracker.json`:
+`{"project": "...", "status": "one line", "items": [{"kind": "measure|photo|decide|test",
+"state": "need|verify|pending|have", "what": "...", "value": "...", "how": "...", "why": "...",
+"file": "photos/x.jpg"}]}`. Keep it current: add asks as they come up, flip them
+to `have` (with the value or photo file) when the user answers. Save user photos
+into `<project>/photos/`.
+
 ## Viewer
 
 - Lists `.stl`/`.obj` files. By default it shows only `*_print*` files, focused

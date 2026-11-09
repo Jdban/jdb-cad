@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Tracker</title>
+<style>
+  :root { --bg:#16181d; --panel:#20232a; --text:#e6e6e6; --muted:#8b919c; --border:#2e323b;
+          --need:#ffb84d; --have:#5fd38d; --pending:#4da3ff; --verify:#b46cff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui, sans-serif; }
+  header { position:sticky; top:0; z-index:2; background:var(--panel); border-bottom:1px solid var(--border);
+           padding:10px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; flex:1; }
+  header a { color:var(--pending); text-decoration:none; }
+  .legend { display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--muted); }
+  main { max-width:1100px; margin:0 auto; padding:16px; display:grid; gap:18px; }
+  .project { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .project h2 { margin:0 0 4px; font-size:18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .count { font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px; background:#2c313a; }
+  .status { color:var(--muted); margin:0 0 12px; }
+  h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:16px 0 6px; }
+  .row { display:grid; grid-template-columns:auto 1fr; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
+  .chip { font-size:11px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:4px; height:fit-content;
+          border:1px solid currentColor; white-space:nowrap; min-width:64px; text-align:center; }
+  .need { color:var(--need); } .have { color:var(--have); } .pending { color:var(--pending); } .verify { color:var(--verify); }
+  .what { font-weight:600; }
+  .kind { color:var(--muted); font-weight:400; font-size:12px; margin-left:6px; }
+  .value { color:var(--have); }
+  .how { color:#c9cdd4; }
+  .why { color:var(--muted); font-size:12px; }
+  .photos { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:6px; }
+  .ph { border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#1b1e24; display:flex; flex-direction:column; }
+  .ph img { width:100%; height:110px; object-fit:cover; display:block; cursor:zoom-in; }
+  .ph .cap { padding:6px 8px; font-size:12px; }
+  .ph.need { border-style:dashed; border-color:var(--need); color:var(--text); }
+  .ph.need .box { height:110px; display:flex; align-items:center; justify-content:center; font-size:30px; color:var(--need); }
+  .ph.need .cap .how { color:var(--muted); font-size:11px; display:block; margin-top:2px; }
+  #zoom { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:5; cursor:zoom-out; }
+  #zoom img { max-width:94vw; max-height:94vh; }
+  .empty { color:var(--muted); font-style:italic; }
+  @media (max-width:600px) { main { padding:12px; } .row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Project tracker</h1>
+  <div class="legend">
+    <span class="need">● need from you</span><span class="verify">● please double-check</span>
+    <span class="pending">● waiting on a test</span><span class="have">● have it</span>
+  </div>
+  <a href="/">← 3D viewer</a>
+</header>
+<main id="main"><p class="empty">loading…</p></main>
+<div id="zoom"><img alt=""></div>
+<script>
+const ORDER = { need: 0, verify: 1, pending: 2, have: 3 };
+const LABEL = { need: 'need', verify: 'check', pending: 'testing', have: 'have' };
+const KIND = { measure: 'measurement', photo: 'photo', decide: 'decision', test: 'test' };
+function esc(t) { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; }
+function url(dir, file) { return '/' + [dir, ...file.split('/')].map(encodeURIComponent).join('/'); }
+
+function render(projects) {
+  const main = document.getElementById('main');
+  if (!projects.length) { main.innerHTML = '<p class="empty">No tracker.json files yet.</p>'; return; }
+  // projects with the most open asks first
+  const open = p => p.items.filter(i => i.state === 'need' || i.state === 'verify').length;
+  projects.sort((a, b) => open(b) - open(a));
+  main.innerHTML = projects.map(p => {
+    const items = [...p.items].sort((a, b) => ORDER[a.state] - ORDER[b.state]);
+    const rows = items.filter(i => i.kind !== 'photo');
+    const photos = items.filter(i => i.kind === 'photo');
+    const n = open(p);
+    const row = i => `<div class="row"><span class="chip ${i.state}">${LABEL[i.state] || i.state}</span><div>
+        <div class="what">${esc(i.what)}<span class="kind">${KIND[i.kind] || ''}</span></div>
+        ${i.value ? `<div class="value">${esc(i.value)}</div>` : ''}
+        ${i.how && i.state !== 'have' ? `<div class="how">${esc(i.how)}</div>` : ''}
+        ${i.why ? `<div class="why">Why: ${esc(i.why)}</div>` : ''}</div></div>`;
+    const photo = i => i.state === 'have' && i.file
+      ? `<div class="ph"><img src="${url(p.dir, i.file)}" alt="${esc(i.what)}" loading="lazy"><div class="cap">${esc(i.what)}</div></div>`
+      : `<div class="ph need"><div class="box">📷</div><div class="cap">${esc(i.what)}<span class="how">${esc(i.how)}</span></div></div>`;
+    return `<section class="project">
+      <h2>${esc(p.project)} <span class="count ${n ? 'need' : 'have'}">${n ? n + ' open' : 'nothing needed'}</span></h2>
+      <p class="status">${esc(p.status)}</p>
+      <h3>Info</h3>${rows.map(row).join('') || '<p class="empty">none</p>'}
+      <h3>Photos</h3><div class="photos">${photos.map(photo).join('') || '<p class="empty">none</p>'}</div>
+    </section>`;
+  }).join('');
+  main.querySelectorAll('.ph img').forEach(img => img.onclick = () => {
+    const z = document.getElementById('zoom'); z.querySelector('img').src = img.src; z.style.display = 'flex';
+  });
+}
+document.getElementById('zoom').onclick = e => { e.currentTarget.style.display = 'none'; };
+
+let last = '', pageVersion = null;
+async function poll() {
+  try {
+    const data = await (await fetch('/api/tracker', { cache: 'no-store' })).json();
+    if (pageVersion === null) pageVersion = data.page;
+    else if (data.page !== pageVersion) { location.reload(); return; }
+    const sig = JSON.stringify(data.projects);
+    if (sig !== last) { last = sig; render(data.projects); }
+  } catch (e) { /* server restarting */ }
+  setTimeout(poll, 3000);
+}
+poll();
+</script>
+</body>
+</html>

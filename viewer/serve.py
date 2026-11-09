@@ -58,6 +58,21 @@ def read_focus():
         return None
 
 
+def read_trackers():
+    """Every <project>/tracker.json: what the user has provided and what's still needed."""
+    out = []
+    for t in sorted(ROOT.glob("*/tracker.json")):
+        if t.parent.name.startswith(".") or t.parent.name in SKIP_DIRS:
+            continue
+        try:
+            data = json.loads(t.read_text())
+        except (OSError, ValueError):
+            continue
+        data["dir"] = t.parent.name
+        out.append(data)
+    return out
+
+
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         # Only answer requests addressed to this machine (blocks DNS-rebinding pages).
@@ -69,6 +84,17 @@ class Handler(SimpleHTTPRequestHandler):
         if any(part.startswith(".") for part in self.path.split("?")[0].split("/")):
             self.send_error(404)
             return
+        if self.path.split("?")[0] == "/api/tracker":
+            page = (ROOT / "viewer" / "tracker.html").stat().st_mtime
+            body = json.dumps({"projects": read_trackers(), "page": page}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path.split("?")[0] in ("/tracker", "/tracker/"):
+            self.path = "/viewer/tracker.html"
         if self.path.split("?")[0] == "/api/models":
             page = (ROOT / "viewer" / "index.html").stat().st_mtime  # page reloads itself when this changes
             body = json.dumps({"models": list_models(), "focus": read_focus(), "page": page}).encode()
