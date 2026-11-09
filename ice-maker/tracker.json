@@ -9,6 +9,13 @@
       "how": "Slide each on (no hook). Pick the NARROWEST that slides all the way out to the wall and sits flat, level with the white teeth."
     },
     {
+      "kind": "measure",
+      "state": "need",
+      "what": "Thick base of the grey blade",
+      "how": "Calipers: (1) its width side to side (along the wall), (2) how far it reaches in from the wall before the blade gets thin. See the orange label in the stripper photo.",
+      "why": "Sets how wide the slot must be near the wall (W6 / W7 / W8 is the same question by trial)."
+    },
+    {
       "kind": "test",
       "state": "have",
       "what": "Wall-end test E30 / E26 / W30",
