@@ -1,0 +1,5 @@
+{
+  "title": "Notch-length fit test (N5.6 / N6.1 / N6.6 / N7.1): top + arm stub, no hook",
+  "settings": [["Process preset", "0.28mm Extra Draft", "Default 0.20mm Standard: fit test only"]],
+  "note": "Prints flat, no supports, don't auto-orient. Cut the slot skin out first. Pick the one that drops over the wall top and sits flat with the arm stub against the wall, without forcing and without rocking."
+}

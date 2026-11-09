@@ -209,6 +209,42 @@ WIDE_FIT_TESTS = [       # (label, widened slot width) -- all: full keel, widen 
     ("W8", 8.0),
 ]
 
+# ---------------------------------------------------------------- arm position
+# How long the notch ceiling is before the arm drops down (sits on the wall top).
+# ARM_SHIFT moves the arm, hook and the tooth's outer end outward together.
+_BASE = dict(TOOTH_X1=TOOTH_X1, ARM_X0=ARM_X0, WALL_NOTCH_X=WALL_NOTCH_X, HOOK_X0=HOOK_X0,
+             HOOK_LIP_X=HOOK_LIP_X)
+
+
+def set_arm_shift(shift):
+    global TOOTH_X1, ARM_X0, WALL_NOTCH_X, HOOK_X0, HOOK_LIP_X
+    TOOTH_X1 = _BASE["TOOTH_X1"] + shift
+    ARM_X0 = _BASE["ARM_X0"] + shift
+    WALL_NOTCH_X = (_BASE["WALL_NOTCH_X"][0], _BASE["WALL_NOTCH_X"][1] + shift)
+    HOOK_X0 = _BASE["HOOK_X0"] + shift
+    HOOK_LIP_X = _BASE["HOOK_LIP_X"] + shift
+
+
+NOTCH_FIT_TESTS = [      # (label = notch length to the arm in mm, arm shift)
+    ("N5.6", -0.5), ("N6.1", 0.0), ("N6.6", 0.5), ("N7.1", 1.0),
+]
+ARM_STUB = 12.0          # how much arm the notch test keeps below the notch ceiling
+
+
+def notch_test(label, shift):
+    """Top + short arm stub (no hook), I4 slot/keel, flat with skin, label on top."""
+    global KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA
+    KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA = (16.0, 36.0), 28.0, 7.0, 0.0
+    set_arm_shift(shift)
+    part = clip(True, keel_depth=3.0, print_skin=True)
+    y_cut = BAR_Y0 + WALL_NOTCH_DEPTH - ARM_STUB
+    part = part & Pos(0, y_cut, -1) * Box(80, 40, THICK + 2, align=MIN)
+    part = engrave(part, label, origin=(27.0, (BAR_Y0 + BAR_Y1) / 2 - 0.5, THICK),
+                   normal=(0, 0, 1), up=(0, 1, 0), size=4.0, depth=0.5)
+    set_arm_shift(0.0)
+    return flat_for_print(part)
+
+
 # Full tooth versions, each with its engraved part ID (see PARTS.md)
 VERSIONS = {
     # I4: W7 fit (blade base measured 6.37 mm), widened from 2 mm earlier than W30,
@@ -231,6 +267,19 @@ def full_tooth(part_id):
 
 
 if __name__ == "__main__":
+    if "--notch-fit-test" in sys.argv:
+        tests, y = [], 0.0
+        for label, shift in NOTCH_FIT_TESTS:
+            t = notch_test(label, shift)
+            bb = t.bounding_box()
+            tests.append(Pos(0, y, 0) * t)
+            y += bb.size.Y + 6
+        write(Compound(tests), "ice-tooth_notch-fit-test_print", step=False)
+        mesher = Mesher()
+        for t in tests:
+            mesher.add_shape(t)
+        mesher.write(str(OUT / "ice-tooth_notch-fit-test_print.3mf"))
+        sys.exit()
     if "--version" in sys.argv:   # e.g. --version I4
         pid = sys.argv[sys.argv.index("--version") + 1]
         part, printable = full_tooth(pid)

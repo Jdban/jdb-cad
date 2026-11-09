@@ -5,6 +5,12 @@
     {
       "kind": "test",
       "state": "pending",
+      "what": "N5.6 / N6.1 / N6.6 / N7.1: notch length (wall top to arm)",
+      "how": "Cut the slot skin out, then drop each over the wall top (no hook). Which sits flat with the arm stub against the outside of the wall, without forcing and without rocking?"
+    },
+    {
+      "kind": "test",
+      "state": "pending",
       "what": "I4: install and run",
       "how": "Does it seat fully (level with the white teeth, end at the wall), snap on without forcing, and stay put sideways? Then watch a few ice cycles."
     },

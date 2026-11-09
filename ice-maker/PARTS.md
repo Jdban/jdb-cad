@@ -16,5 +16,7 @@ Prefix: **I** = full tooth. Fit-test pieces keep their engraved test labels.
 
 | I4 | `out/ice-tooth_I4_print` | next, colored PETG, flat | 3 mm keel, 2.2 slot, slot 7 mm wide from 2 mm before W30 (blade base 6.37 mm), arm +0.5 mm, ID engraved on the arm | Pending |
 
+| N5.6 / N6.1 / N6.6 / N7.1 | `out/ice-tooth_notch-fit-test_print` | next | I4 top + 12 mm arm stub (no hook); notch length to the arm 5.6 / 6.1 (current) / 6.6 / 7.1 mm | Pending |
+
 Designed but not printed: `ice-tooth_keel3_arm+1.5` (arm 1.5 mm longer), the
 2.0 / 2.2 / 2.4 / K12 fit set (superseded). 
