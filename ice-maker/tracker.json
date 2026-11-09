@@ -1,12 +1,12 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I5 ready to print: every contact point tested (slot 2.2, base 7 mm, notch 6.6). I4 superseded.",
+  "status": "I5 installed (2026-11-09) and seems to fit. Watching it through some ice cycles.",
   "items": [
     {
       "kind": "test",
       "state": "pending",
-      "what": "I5: install and run",
-      "how": "Cut the slot skin out. Hook the bottom under the wall, rock the tooth down. Does it snap on without forcing, sit level with the white teeth, and stay put sideways? Then watch a few ice cycles."
+      "what": "I5: over a few ice cycles",
+      "how": "Check now and then: still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it."
     },
     {
       "kind": "test",
@@ -39,9 +39,10 @@
     },
     {
       "kind": "decide",
-      "state": "pending",
+      "state": "have",
       "what": "Arm length",
-      "how": "I5 has +0.5 mm. If it's still tight to snap on, go to +1.5 mm."
+      "how": "I5 has +0.5 mm. If it's still tight to snap on, go to +1.5 mm.",
+      "value": "+0.5 mm (I5) installs OK"
     },
     {
       "kind": "measure",

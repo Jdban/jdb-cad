@@ -18,7 +18,7 @@ Prefix: **I** = full tooth. Fit-test pieces keep their engraved test labels.
 
 | N5.6 / N6.1 / N6.6 / N7.1 | `out/ice-tooth_notch-fit-test_print` | 2026-11-09 | I4 top + 12 mm arm stub (no hook); notch length to the arm 5.6 / 6.1 (current) / 6.6 / 7.1 mm | **N6.6 fits** |
 
-| I5 | `out/ice-tooth_I5_print` | next, colored PETG, flat | I4 + notch 6.6 mm to the arm (arm and hook 0.5 mm further out), ID engraved on the arm | Pending |
+| I5 | `out/ice-tooth_I5_print` | 2026-11-09, colored PETG, flat | I4 + notch 6.6 mm to the arm (arm and hook 0.5 mm further out), ID engraved on the arm | Installed, seems to fit. Watching over ice cycles |
 
 Designed but not printed: `ice-tooth_keel3_arm+1.5` (arm 1.5 mm longer), the
 2.0 / 2.2 / 2.4 / K12 fit set (superseded). 
