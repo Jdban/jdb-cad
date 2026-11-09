@@ -85,6 +85,19 @@ learn a constraint ("keel must stay above the water line", "2.2 mm slot fits").
 10. **Commit** each meaningful step (`git commit`), so "revert that" is one
     command and versions can be compared. Push only when the user asks.
 
+## Part IDs and parts logs
+
+**Every printed part gets a short ID engraved on it**, and each project keeps a
+`PARTS.md` log: ID, file, date and material, what changed, and the result. Then
+"re-test I5" is unambiguous for both of you.
+- IDs: a project letter plus a number (`I4`, `B1`, `C3`). Fit-test pieces get
+  labels that name the variable (`K3` = 3 mm keel, `E30` = keel ends at 30).
+- Engrave with `tools/label.py` (`engrave(part, "I4", origin, normal, up)`) on a
+  face that touches nothing: not a fit, sealing, sliding or food surface. It
+  refuses labels that hang off the face.
+- Assign the next ID when you export a print file, and log the result when the
+  user reports back. Mention the ID whenever you talk about a part.
+
 ## Viewer
 
 - Lists `.stl`/`.obj` files. By default it shows only `*_print*` files, focused
