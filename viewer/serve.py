@@ -50,7 +50,10 @@ FOCUS = ROOT / "viewer" / "focus.json"
 def read_focus():
     """Optional list of paths the page should show (written by whoever is editing)."""
     try:
-        return {"mtime": FOCUS.stat().st_mtime, "show": json.loads(FOCUS.read_text()).get("show", [])}
+        data = json.loads(FOCUS.read_text())
+        return {"mtime": FOCUS.stat().st_mtime, "show": data.get("show", []),
+                "arrange": data.get("arrange"), "explode": data.get("explode"),
+                "offsets": data.get("offsets")}
     except (OSError, ValueError):
         return None
 
@@ -67,7 +70,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404)
             return
         if self.path.split("?")[0] == "/api/models":
-            body = json.dumps({"models": list_models(), "focus": read_focus()}).encode()
+            page = (ROOT / "viewer" / "index.html").stat().st_mtime  # page reloads itself when this changes
+            body = json.dumps({"models": list_models(), "focus": read_focus(), "page": page}).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Cache-Control", "no-store")

@@ -73,7 +73,11 @@ learn a constraint ("keel must stay above the water line", "2.2 mm slot fits").
 8. **Point the viewer** at what you're working on by writing
    `viewer/focus.json`: `{"show": ["proj/out/name_print.stl", ...]}`.
    On refresh, and whenever the list changes, the page shows exactly those.
-   While a focus list is set, new exports don't auto-appear. Write
+   Add `"arrange": false` to show parts assembled at their real positions
+   (true = side by side), and `"explode": 1.0` to pull them apart (0 = assembled).
+   `"offsets": {"path.stl": [x, y, z]}` sets each part's explode direction and
+   distance in mm (at explode 1); without it parts move away from the average centre.
+   The page reloads itself when `viewer/index.html` changes. While a focus list is set, new exports don't auto-appear. Write
    `{"show": []}` to hand control back to the viewer's "Auto-show newest change".
 9. **Hand off files.** The user grabs them with the viewer's download button,
    or from a link like `http://localhost:8765/proj/out/name_print.3mf`. On WSL,
@@ -95,6 +99,8 @@ learn a constraint ("keel must stay above the water line", "2.2 mm slot fits").
 - Settings cards are `<model stem>.settings.json` next to the model (for
   `name_print.stl` that's `name_print.settings.json`; it also covers `name_print.3mf`):
   `{"title": "...", "settings": [["Setting", "Value", "why / default"]], "note": "..."}`.
+  A sidecar may also set `"color": "#8a8f99"` (fixed model colour, e.g. grey for
+  context parts that aren't printed; no card is shown if it has no settings).
   **List only settings that differ from the slicer's defaults**, using the
   slicer's own setting names. Don't say "start from profile X" unless the user
   has that profile.

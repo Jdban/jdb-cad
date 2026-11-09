@@ -82,6 +82,8 @@
           <input type="range" id="secpos" min="0" max="1000" value="500" style="flex:1" disabled>
           <label title="keep the other side"><input type="checkbox" id="secflip"> flip</label>
         </div>
+        <div class="row" title="Pull assembled parts apart (needs Arrange side by side off)">Explode
+          <input type="range" id="explode" min="0" max="300" value="0" style="flex:1"></div>
         <div class="row"><button id="measure" style="flex:1">📏 Measure</button><button id="clearmeasure">clear</button></div>
       </div>
       <div style="display:flex;gap:6px">
@@ -223,11 +225,17 @@ function paintOverhangs(mesh, base, on) {
   mesh.material.color.set(on ? '#ffffff' : base);
 }
 
+function paintFixed(m) {
+  if (m.obj) m.obj.traverse(o => { if (o.isMesh && !o.material.vertexColors) o.material.color.set(m.color); });
+}
+
 // Give every visible model a distinct colour (file-name colours can collide).
 function assignColors() {
   const used = new Set();
   for (const m of models.values()) {
+    if (m.settings?.color) m.baseColor = m.settings.color;   // fixed colour (e.g. grey context parts)
     if (!m.visible) { m.color = m.baseColor; continue; }
+    if (m.settings?.color) { m.color = m.baseColor; paintFixed(m); continue; }
     let i = PALETTE.indexOf(m.baseColor), c = m.baseColor;
     for (let n = 0; used.has(c) && n < PALETTE.length; n++) { i = (i + 1) % PALETTE.length; c = PALETTE[i]; }
     used.add(c); m.color = c;
@@ -334,6 +342,21 @@ renderer.domElement.addEventListener('pointerup', e => {
 // Side by side: line visible models up along X with a gap, centred on Y=0.
 function layout() {
   const arrange = document.getElementById('arrange').checked;
+  if (!arrange) {   // real positions, optionally exploded away from the assembly centre
+    const k = document.getElementById('explode').value / 100;
+    const vis = [...models.values()].filter(m => m.obj && m.visible);
+    const centre = new THREE.Vector3();
+    for (const m of vis) centre.add(m.info.box.getCenter(new THREE.Vector3()));
+    if (vis.length) centre.divideScalar(vis.length);
+    for (const m of models.values()) {
+      if (!m.obj) continue;
+      if (!m.visible || !k) { m.obj.position.set(0, 0, 0); continue; }
+      const off = focusOffsets && focusOffsets[m.path];   // explicit explode direction (mm at full explode)
+      if (focusOffsets) m.obj.position.set(...(off || [0, 0, 0])).multiplyScalar(k);
+      else m.obj.position.copy(m.info.box.getCenter(new THREE.Vector3()).sub(centre).multiplyScalar(k));
+    }
+    return;
+  }
   let cursor = 0;
   for (const m of models.values()) {
     if (!m.obj) continue;
@@ -361,6 +384,7 @@ function renderSettings() {
   for (const [path, m] of models) {
     if (!m.visible || !m.settings) continue;
     const st = m.settings;
+    if (!(st.settings && st.settings.length) && !st.note) continue;   // e.g. colour-only sidecar
     const rows = (st.settings || []).map(([k, v, why]) =>
       `<tr><td class="k">${esc(k)}</td><td class="v">${esc(v)}</td><td class="w">${esc(why)}</td></tr>`).join('');
     cards.push(`<div class="card" style="--c:${m.color}"><h2>${esc(st.title || path.split('/').pop())}</h2>
@@ -442,7 +466,7 @@ function renderList(force = false) {
     dl.download = path.split('/').pop();
     dl.onclick = ev => ev.stopPropagation();
     div.querySelector('.name').textContent = path.split('/').pop();
-    if (m.settings) div.querySelector('.name').insertAdjacentHTML('beforeend', '<span class="badge">settings</span>');
+    if (m.settings?.settings?.length) div.querySelector('.name').insertAdjacentHTML('beforeend', '<span class="badge">settings</span>');
     div.title = 'Click name: show only this · checkbox: add/remove';
     div.querySelector('input').onclick = async (ev) => {
       ev.stopPropagation();
@@ -466,6 +490,8 @@ function renderList(force = false) {
 }
 
 let first = true;
+let pageVersion = null;
+let focusOffsets = null;
 let focusShow = [];
 let lastFocus = null;
 async function poll() {
@@ -473,6 +499,8 @@ async function poll() {
     const res = await fetch('/api/models', { cache: 'no-store' });
     const data = await res.json();
     const items = data.models, focus = data.focus;
+    if (pageVersion === null) pageVersion = data.page;
+    else if (data.page !== pageVersion) { location.reload(); return; }   // viewer was updated
     document.getElementById('status').textContent = 'live';
     const seen = new Set();
     let changed = null;
@@ -481,7 +509,7 @@ async function poll() {
       let m = models.get(it.path);
       if (m) m.settings = it.settings;
       if (!m) {
-        m = { mtime: it.mtime, size: it.size, color: colorFor(it.path), baseColor: colorFor(it.path), visible: false, obj: null };
+        m = { path: it.path, mtime: it.mtime, size: it.size, color: colorFor(it.path), baseColor: colorFor(it.path), visible: false, obj: null };
         m.settings = it.settings;
         models.set(it.path, m);
         if (!first) { m.flash = true; changed = changed || it.path; }
@@ -497,11 +525,14 @@ async function poll() {
     models.clear(); for (const [k, v] of sorted) models.set(k, v);
 
     focusShow = focus ? focus.show : [];
-    const focusKey = focus ? JSON.stringify(focus.show) : null;   // content only: rewriting the same list keeps your view
+    focusOffsets = focus && focus.offsets ? focus.offsets : null;
+    const focusKey = focus ? JSON.stringify([focus.show, focus.arrange, focus.explode]) : null;   // content only: rewriting the same list keeps your view
     const wanted = focus ? focus.show.filter(p => models.has(p)) : [];
     if (wanted.length && focusKey !== lastFocus) {
       // focus list changed (or first load): show exactly those models
       lastFocus = focusKey;
+      if (typeof focus.arrange === 'boolean') document.getElementById('arrange').checked = focus.arrange;
+      if (typeof focus.explode === 'number') document.getElementById('explode').value = focus.explode * 100;
       for (const p of models.keys()) await show(p, wanted.includes(p));
       applyStyle(); setView('iso');
     } else if (first && items.length) {
@@ -529,6 +560,7 @@ document.getElementById('showall').onchange = () => { saveShowAll(); renderList(
 document.getElementById('fit').onclick = () => setView('iso');
 for (const id of ['overhang', 'bed', 'secaxis', 'secflip']) document.getElementById(id).onchange = applyStyle;
 document.getElementById('secpos').oninput = () => updateSection();
+document.getElementById('explode').oninput = () => { applyStyle(); };
 document.getElementById('measure').onclick = () => {
   measuring = !measuring;
   document.getElementById('measure').classList.toggle('on', measuring);
