@@ -1,0 +1,9 @@
+{
+  "title": "Ice maker tooth, 3 mm keel (conservative)",
+  "settings": [
+    ["Filament", "PETG (colored)", "Pick any PETG preset, e.g. Generic PETG"],
+    ["Wall loops", "6", "Default 2"],
+    ["Sparse infill density", "100%", "Default 15%"]
+  ],
+  "note": "Leave supports off. Don't auto-orient: it's already standing the right way. Overnight version until the dip test sets the final keel depth."
+}

@@ -154,6 +154,19 @@ def write(part, name, step=True):
 if __name__ == "__main__":
     if "--rebuild" in sys.argv:
         write(clip(with_keel=False), "ice-tooth_rebuild", step=False)
+    elif "--keel" in sys.argv:
+        # one-off full part at another keel depth, e.g. --keel 3 -> ice-tooth_keel3_print
+        depth = float(sys.argv[sys.argv.index("--keel") + 1])
+        name = f"ice-tooth_keel{depth:g}"
+        part = clip(with_keel=True, keel_depth=depth)
+        write(part, name)
+        printable = part.rotate(Axis.Y, 90)
+        bb = printable.bounding_box()
+        printable = Pos(-bb.min.X, -bb.min.Y, -bb.min.Z) * printable
+        write(printable, f"{name}_print", step=False)
+        mesher = Mesher()
+        mesher.add_shape(printable)
+        mesher.write(str(OUT / f"{name}_print.3mf"))
     else:
         part = clip(with_keel=True)
         write(part, "ice-tooth_keel")

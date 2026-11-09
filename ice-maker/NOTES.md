@@ -33,5 +33,9 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
   above the slot over air).
 
 ## Open
+- Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
+  overnight part while the ice maker is first switched back on (2026-11-08).
+- Ice maker not filling after being switched on; dispenser has always been weak:
+  suspect low water pressure (supply valve, kinked line, inlet valve screen).
 - Fit tests K3 / K5 / K8 (`out/ice-tooth_fit-test-set_print.3mf`): dip each in a
   filled tray; pick the deepest that comes out dry with a few mm to spare.
