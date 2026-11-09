@@ -83,7 +83,8 @@
           <label title="keep the other side"><input type="checkbox" id="secflip"> flip</label>
         </div>
         <div class="row" title="Pull assembled parts apart (needs Arrange side by side off)">Explode
-          <input type="range" id="explode" min="0" max="300" value="0" style="flex:1"></div>
+          <input type="range" id="explode" min="0" max="300" value="0" style="flex:1">
+          <button id="explodebtn" style="min-width:86px">Explode</button></div>
         <div class="row"><button id="measure" style="flex:1">📏 Measure</button><button id="clearmeasure">clear</button></div>
       </div>
       <div style="display:flex;gap:6px">
@@ -532,7 +533,7 @@ async function poll() {
       // focus list changed (or first load): show exactly those models
       lastFocus = focusKey;
       if (typeof focus.arrange === 'boolean') document.getElementById('arrange').checked = focus.arrange;
-      if (typeof focus.explode === 'number') document.getElementById('explode').value = focus.explode * 100;
+      if (typeof focus.explode === 'number') { document.getElementById('explode').value = focus.explode * 100; syncExplodeBtn(); }
       for (const p of models.keys()) await show(p, wanted.includes(p));
       applyStyle(); setView('iso');
     } else if (first && items.length) {
@@ -560,7 +561,22 @@ document.getElementById('showall').onchange = () => { saveShowAll(); renderList(
 document.getElementById('fit').onclick = () => setView('iso');
 for (const id of ['overhang', 'bed', 'secaxis', 'secflip']) document.getElementById(id).onchange = applyStyle;
 document.getElementById('secpos').oninput = () => updateSection();
-document.getElementById('explode').oninput = () => { applyStyle(); };
+let lastExplode = 100;
+function syncExplodeBtn() {
+  const v = +document.getElementById('explode').value;
+  document.getElementById('explodebtn').textContent = v ? 'Assemble' : 'Explode';
+}
+document.getElementById('explode').oninput = () => {
+  const v = +document.getElementById('explode').value;
+  if (v) lastExplode = v;
+  syncExplodeBtn(); applyStyle();
+};
+document.getElementById('explodebtn').onclick = () => {
+  const el = document.getElementById('explode');
+  if (+el.value) { lastExplode = +el.value; el.value = 0; } else el.value = lastExplode || 100;
+  document.getElementById('arrange').checked = false;   // explode only makes sense at real positions
+  syncExplodeBtn(); applyStyle();
+};
 document.getElementById('measure').onclick = () => {
   measuring = !measuring;
   document.getElementById('measure').classList.toggle('on', measuring);
