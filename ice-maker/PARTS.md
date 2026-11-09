@@ -12,7 +12,7 @@ Prefix: **I** = full tooth. Fit-test pieces keep their engraved test labels.
 | K3 / K5 / K8 | `out/ice-tooth_fit-test-set_print` | 2026-11-08 | Tops only, keel depth 3 / 5 / 8 mm | All dry after the first (small, low-pressure) fill. Retest after a normal fill |
 | E30 / E26 / W30 | `out/ice-tooth_wall-fit-test_print` | next | Tops only, 3 mm keel: keel ends earlier (E30, E26) or slot 5 mm near the wall (W30) | W30 best; E30 sits tilted; E26 worst. W30's 5 mm section still too narrow |
 
-| W6 / W7 / W8 | `out/ice-tooth_wide-fit-test_print` | next | W30 design with the near-wall slot 6 / 7 / 8 mm wide | Pending |
+| W6 / W7 / W8 | `out/ice-tooth_wide-fit-test_print` | not printed | W30 design with the near-wall slot 6 / 7 / 8 mm wide | Skipped: measured the blade base instead (6.37 mm) |
 
 | I4 | `out/ice-tooth_I4_print` | next, colored PETG, flat | 3 mm keel, 2.2 slot, slot 7 mm wide from 2 mm before W30 (blade base 6.37 mm), arm +0.5 mm, ID engraved on the arm | Pending |
 

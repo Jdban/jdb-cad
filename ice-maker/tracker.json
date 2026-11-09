@@ -1,18 +1,12 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I4 ready to print (W7 slot from the 6.37 mm blade base). W6/W7/W8 test confirms the slot width.",
+  "status": "I4 ready to print (slot 7 mm near the wall, from the measured 6.37 mm blade base).",
   "items": [
     {
       "kind": "test",
       "state": "pending",
       "what": "I4: install and run",
       "how": "Does it seat fully (level with the white teeth, end at the wall), snap on without forcing, and stay put sideways? Then watch a few ice cycles."
-    },
-    {
-      "kind": "test",
-      "state": "pending",
-      "what": "W6 / W7 / W8: widened slot near the wall",
-      "how": "Slide each on (no hook). Pick the NARROWEST that slides all the way out to the wall and sits flat, level with the white teeth."
     },
     {
       "kind": "measure",
