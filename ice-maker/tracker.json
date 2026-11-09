@@ -1,12 +1,31 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I5 installed (2026-11-09) and seems to fit. Watching it through some ice cycles.",
+  "status": "I5 installed and fits. Watching it; possible I6 idea: skirts over the stub's sides (only if I5 slides and fingers have room).",
   "items": [
     {
       "kind": "test",
       "state": "pending",
       "what": "I5: over a few ice cycles",
       "how": "Check now and then: still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it."
+    },
+    {
+      "kind": "test",
+      "state": "pending",
+      "what": "Does I5 slide sideways over a few cycles?",
+      "how": "If it stays put, no skirts needed. If it shifts, skirts over the stub's sides (I6) are next."
+    },
+    {
+      "kind": "photo",
+      "state": "need",
+      "what": "Ejector finger beside the stub",
+      "how": "Ice maker OFF: turn the ejector by hand (or catch a harvest). Photo of where the finger passes the stub / the dark gap next to it.",
+      "why": "A skirt on that side must not sit in the finger's path."
+    },
+    {
+      "kind": "photo",
+      "state": "need",
+      "what": "I5 after a few ice cycles",
+      "how": "Same angle as your I5 photo, to compare its position."
     },
     {
       "kind": "test",
@@ -97,6 +116,12 @@
       "state": "need",
       "what": "Tray with a normal fill of water",
       "how": "From the side, at the tooth, so the water level vs the blade is visible."
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "I5 installed",
+      "file": "photos/i5-installed.png"
     }
   ]
 }
