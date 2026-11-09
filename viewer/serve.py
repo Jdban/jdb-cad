@@ -74,15 +74,23 @@ def read_trackers():
 
 
 class Handler(SimpleHTTPRequestHandler):
-    def do_GET(self):
-        # Only answer requests addressed to this machine (blocks DNS-rebinding pages).
+    def _allowed(self):
+        """Read-only, local-only: refuse other hosts (DNS rebinding) and hidden paths."""
         host = self.headers.get("Host", "").rsplit(":", 1)[0].strip("[]")
         if host not in ("localhost", "127.0.0.1", "::1"):
             self.send_error(403)
-            return
-        # Never serve hidden paths (.git, .venv, pid/log files).
+            return False
         if any(part.startswith(".") for part in self.path.split("?")[0].split("/")):
-            self.send_error(404)
+            self.send_error(404)   # .git, .venv, pid/log files
+            return False
+        return True
+
+    def do_HEAD(self):
+        if self._allowed():
+            super().do_HEAD()
+
+    def do_GET(self):
+        if not self._allowed():
             return
         if self.path.split("?")[0] == "/api/tracker":
             page = (ROOT / "viewer" / "tracker.html").stat().st_mtime
