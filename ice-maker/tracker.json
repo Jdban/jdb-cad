@@ -1,18 +1,19 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I4 ready to print (slot 7 mm near the wall, from the measured 6.37 mm blade base).",
+  "status": "I5 ready to print: every contact point tested (slot 2.2, base 7 mm, notch 6.6). I4 superseded.",
   "items": [
     {
       "kind": "test",
       "state": "pending",
-      "what": "N5.6 / N6.1 / N6.6 / N7.1: notch length (wall top to arm)",
-      "how": "Cut the slot skin out, then drop each over the wall top (no hook). Which sits flat with the arm stub against the outside of the wall, without forcing and without rocking?"
+      "what": "I5: install and run",
+      "how": "Cut the slot skin out. Hook the bottom under the wall, rock the tooth down. Does it snap on without forcing, sit level with the white teeth, and stay put sideways? Then watch a few ice cycles."
     },
     {
       "kind": "test",
-      "state": "pending",
-      "what": "I4: install and run",
-      "how": "Does it seat fully (level with the white teeth, end at the wall), snap on without forcing, and stay put sideways? Then watch a few ice cycles."
+      "state": "have",
+      "what": "Notch length test",
+      "how": "Cut the slot skin out, then drop each over the wall top (no hook). Which sits flat with the arm stub against the outside of the wall, without forcing and without rocking?",
+      "value": "N6.6 fits: notch 6.6 mm to the arm (was 6.1)"
     },
     {
       "kind": "measure",
@@ -40,7 +41,7 @@
       "kind": "decide",
       "state": "pending",
       "what": "Arm length",
-      "how": "I4 has +0.5 mm. If I4 is still too tight to snap on, go to +1.5 mm."
+      "how": "I5 has +0.5 mm. If it's still tight to snap on, go to +1.5 mm."
     },
     {
       "kind": "measure",

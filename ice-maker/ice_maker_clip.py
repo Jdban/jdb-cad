@@ -250,6 +250,8 @@ VERSIONS = {
     # I4: W7 fit (blade base measured 6.37 mm), widened from 2 mm earlier than W30,
     # 3 mm keel, arm +0.5 mm for margin. Prints flat with the slot skin.
     "I4": dict(keel=3.0, wide_from=28.0, wide_w=7.0, arm_extra=0.5),
+    # I5: I4 + notch 6.6 mm to the arm (N6.6 fit test won): arm and hook 0.5 mm further out
+    "I5": dict(keel=3.0, wide_from=28.0, wide_w=7.0, arm_extra=0.5, arm_shift=0.5),
 }
 
 
@@ -258,11 +260,13 @@ def full_tooth(part_id):
     global KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA
     v = VERSIONS[part_id]
     KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA = (16.0, 36.0), v["wide_from"], v["wide_w"], v["arm_extra"]
+    set_arm_shift(v.get("arm_shift", 0.0))
     part = clip(True, keel_depth=v["keel"])
     printable = clip(True, keel_depth=v["keel"], print_skin=True)
     # ID on the outside face of the arm, running along it (touches nothing)
     printable = engrave(printable, part_id, origin=(TOOTH_X1, 0.0, THICK / 2),
                         normal=(1, 0, 0), up=(0, 0, 1), size=5.0, depth=0.5)
+    set_arm_shift(0.0)
     return part, flat_for_print(printable)
 
 
