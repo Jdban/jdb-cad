@@ -1,85 +1,122 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I5 installed, fits, and doesn't slide. Watching it over ice cycles.",
+  "status": "Nothing urgent: glance at I5 now and then, and send a photo after a few ice cycles.",
   "items": [
     {
       "kind": "test",
       "state": "pending",
-      "what": "I5: over a few ice cycles",
-      "how": "Check now and then: still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it."
+      "what": "I5 over a few ice cycles",
+      "parts": [
+        "I5"
+      ],
+      "asked": "2026-11-09",
+      "how": "Still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it."
     },
     {
       "kind": "test",
-      "state": "have",
-      "what": "Does I5 slide sideways?",
-      "how": "If it stays put, no skirts needed. If it shifts, skirts over the stub's sides (I6) are next.",
-      "value": "No (2026-11-09): stub skirts not needed for now"
+      "state": "pending",
+      "what": "Water line after a normal fill",
+      "parts": [
+        "test-K"
+      ],
+      "asked": "2026-11-09",
+      "how": "After a full-looking fill, dip K5 and K8: the deepest that comes out dry with a few mm to spare could set a deeper keel.",
+      "why": "Ice must not freeze around the keel. The first fill was tiny (low water pressure)."
     },
     {
       "kind": "photo",
       "state": "need",
       "what": "I5 after a few ice cycles",
-      "how": "Same angle as your I5 photo, to compare its position."
+      "asked": "2026-11-09",
+      "how": "Same angle as the 'I5 installed' photo, to compare its position."
     },
     {
-      "kind": "test",
-      "state": "have",
-      "what": "Notch length test",
-      "how": "Cut the slot skin out, then drop each over the wall top (no hook). Which sits flat with the arm stub against the outside of the wall, without forcing and without rocking?",
-      "value": "N6.6 fits: notch 6.6 mm to the arm (was 6.1)"
-    },
-    {
-      "kind": "measure",
-      "state": "have",
-      "what": "Thick base of the grey blade",
-      "how": "Calipers: (1) its width side to side (along the wall), (2) how far it reaches in from the wall before the blade gets thin. See the orange label in the stripper photo.",
-      "why": "Sets how wide the slot must be near the wall (W6 / W7 / W8 is the same question by trial).",
-      "value": "6.37 mm side to side (reach from the wall: just leave room)"
-    },
-    {
-      "kind": "test",
-      "state": "have",
-      "what": "Wall-end test E30 / E26 / W30",
-      "how": "Slide each on (no hook). Does its end line up with the white teeth at the wall, and does it still grip the blade when nudged sideways?",
-      "value": "W30 best (widen the slot near the wall); E30 sits tilted; E26 worst. W30's 5 mm section still too narrow."
-    },
-    {
-      "kind": "test",
-      "state": "pending",
-      "what": "Water line after a NORMAL fill",
-      "how": "The first fill was tiny (low water pressure). After a full-looking fill, dip K5 / K8 again: the deepest that comes out dry with a few mm to spare sets the keel depth.",
-      "why": "Ice must not freeze around the keel."
-    },
-    {
-      "kind": "decide",
-      "state": "have",
-      "what": "Arm length",
-      "how": "I5 has +0.5 mm. If it's still tight to snap on, go to +1.5 mm.",
-      "value": "+0.5 mm (I5) installs OK"
+      "kind": "photo",
+      "state": "need",
+      "what": "Tray with a normal fill of water",
+      "asked": "2026-11-09",
+      "how": "From the side, at the tooth, so the water level vs the blade is visible."
     },
     {
       "kind": "measure",
       "state": "have",
       "what": "Blade slot width",
-      "value": "2.2 mm fits the grey blade (confirmed on your printed part)"
+      "value": "2.2 mm fits the thin part of the blade",
+      "answered": "2026-11-08",
+      "parts": [
+        "I1"
+      ]
+    },
+    {
+      "kind": "measure",
+      "state": "have",
+      "what": "Blade base width",
+      "value": "6.37 mm (calipers): slot is 7 mm there",
+      "answered": "2026-11-09"
     },
     {
       "kind": "measure",
       "state": "have",
       "what": "Tooth width",
-      "value": "14 mm (originals ~14.5 mm at the base)"
-    },
-    {
-      "kind": "measure",
-      "state": "have",
-      "what": "Keel depth tests (first fill)",
-      "value": "K3, K5, K8 all dry, but the fill was very small"
+      "value": "14 mm (originals ~14.5 mm at the base)",
+      "answered": "2026-11-08"
     },
     {
       "kind": "measure",
       "state": "have",
       "what": "Water flow",
-      "value": "90 s per cup, 40 s after cycling the saddle valve. Normal is 7-10 s."
+      "value": "90 s per cup, 40 s after cycling the saddle valve (normal 7-10 s)",
+      "answered": "2026-11-08"
+    },
+    {
+      "kind": "test",
+      "state": "have",
+      "what": "Keel depth (first fill)",
+      "value": "K3, K5, K8 all dry, but the fill was tiny",
+      "answered": "2026-11-09",
+      "parts": [
+        "test-K"
+      ]
+    },
+    {
+      "kind": "test",
+      "state": "have",
+      "what": "Keel vs blade base near the wall",
+      "value": "W30 best (widen the slot); details in the parts log",
+      "answered": "2026-11-09",
+      "parts": [
+        "test-EW"
+      ]
+    },
+    {
+      "kind": "test",
+      "state": "have",
+      "what": "Notch length to the arm",
+      "value": "6.6 mm (N6.6)",
+      "answered": "2026-11-09",
+      "parts": [
+        "test-N"
+      ]
+    },
+    {
+      "kind": "test",
+      "state": "have",
+      "what": "Does I5 slide sideways?",
+      "value": "No: stub skirts not needed",
+      "answered": "2026-11-09",
+      "parts": [
+        "I5"
+      ]
+    },
+    {
+      "kind": "decide",
+      "state": "have",
+      "what": "Arm length",
+      "value": "+0.5 mm installs OK",
+      "answered": "2026-11-09",
+      "parts": [
+        "I5"
+      ]
     },
     {
       "kind": "photo",
@@ -104,12 +141,6 @@
       "state": "have",
       "what": "I3 without arm: stops short of the wall",
       "file": "photos/i3-no-arm-stops-short.jpg"
-    },
-    {
-      "kind": "photo",
-      "state": "need",
-      "what": "Tray with a normal fill of water",
-      "how": "From the side, at the tooth, so the water level vs the blade is visible."
     },
     {
       "kind": "photo",

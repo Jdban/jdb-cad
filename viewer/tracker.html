@@ -12,34 +12,54 @@
   header { position:sticky; top:0; z-index:2; background:var(--panel); border-bottom:1px solid var(--border);
            padding:10px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
   header h1 { font-size:16px; margin:0; flex:1; }
-  header a { color:var(--pending); text-decoration:none; }
+  a { color:var(--pending); text-decoration:none; }
+  a:hover { text-decoration:underline; }
   .legend { display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--muted); }
   main { max-width:1100px; margin:0 auto; padding:16px; display:grid; gap:18px; }
   .project { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; }
   .project h2 { margin:0 0 4px; font-size:18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .links { font-size:12px; font-weight:400; display:flex; gap:10px; margin-left:auto; }
   .count { font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px; background:#2c313a; }
-  .status { color:var(--muted); margin:0 0 12px; }
+  .status { margin:2px 0 10px; font-weight:600; }
+  .status::before { content:"Next: "; color:var(--muted); font-weight:400; }
+  .blocks { font-size:13px; color:#c9cdd4; margin:0 0 10px; }
+  .blocks b { color:var(--text); }
+  button.copy { background:#2c313a; color:var(--text); border:1px solid var(--border); border-radius:6px;
+                padding:6px 10px; cursor:pointer; font:inherit; font-size:13px; }
+  button.copy:hover { background:#353b46; }
+  button.copy.done { border-color:var(--have); color:var(--have); }
   h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:16px 0 6px; }
   .row { display:grid; grid-template-columns:auto 1fr; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
   .chip { font-size:11px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:4px; height:fit-content;
           border:1px solid currentColor; white-space:nowrap; min-width:64px; text-align:center; }
   .need { color:var(--need); } .have { color:var(--have); } .pending { color:var(--pending); } .verify { color:var(--verify); }
   .what { font-weight:600; }
-  .kind { color:var(--muted); font-weight:400; font-size:12px; margin-left:6px; }
+  .kind, .ago { color:var(--muted); font-weight:400; font-size:12px; margin-left:6px; }
+  .ago.stale { color:var(--need); }
+  .hint { font-size:12px; color:var(--verify); }
   .value { color:var(--have); }
   .how { color:#c9cdd4; }
   .why { color:var(--muted); font-size:12px; }
+  .ref { margin-top:6px; display:flex; gap:8px; align-items:center; font-size:12px; color:var(--muted); }
+  .ref img { height:70px; border-radius:6px; border:1px solid var(--border); cursor:zoom-in; }
+  .parts { margin-top:4px; display:flex; gap:6px; flex-wrap:wrap; }
+  .part { font-size:12px; border:1px solid var(--border); border-radius:999px; padding:1px 8px; background:#1b1e24; }
+  .part b { color:var(--text); margin-right:4px; }
+  details.answered { margin-top:14px; border-top:1px solid var(--border); padding-top:8px; }
+  details.answered summary { cursor:pointer; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  .done-row { display:grid; grid-template-columns:1fr auto; gap:10px; padding:5px 0; border-top:1px dashed var(--border); font-size:13px; }
+  .done-row .date { color:var(--muted); font-size:12px; white-space:nowrap; }
   .photos { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:6px; }
   .ph { border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#1b1e24; display:flex; flex-direction:column; }
   .ph img { width:100%; height:110px; object-fit:cover; display:block; cursor:zoom-in; }
   .ph .cap { padding:6px 8px; font-size:12px; }
-  .ph.need { border-style:dashed; border-color:var(--need); color:var(--text); }
+  .ph.need { border-style:dashed; border-color:var(--need); }
   .ph.need .box { height:110px; display:flex; align-items:center; justify-content:center; font-size:30px; color:var(--need); }
   .ph.need .cap .how { color:var(--muted); font-size:11px; display:block; margin-top:2px; }
   #zoom { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:5; cursor:zoom-out; }
   #zoom img { max-width:94vw; max-height:94vh; }
   .empty { color:var(--muted); font-style:italic; }
-  @media (max-width:600px) { main { padding:12px; } .row { grid-template-columns:1fr; } }
+  @media (max-width:600px) { main { padding:12px; } .row { grid-template-columns:1fr; } .links { margin-left:0; } }
 </style>
 </head>
 <body>
@@ -47,7 +67,7 @@
   <h1>Project tracker</h1>
   <div class="legend">
     <span class="need">● need from you</span><span class="verify">● please double-check</span>
-    <span class="pending">● waiting on a test</span><span class="have">● have it</span>
+    <span class="pending">● waiting on a test</span><span class="have">● answered</span>
   </div>
   <a href="/">← 3D viewer</a>
 </header>
@@ -57,36 +77,103 @@
 const ORDER = { need: 0, verify: 1, pending: 2, have: 3 };
 const LABEL = { need: 'need', verify: 'check', pending: 'testing', have: 'have' };
 const KIND = { measure: 'measurement', photo: 'photo', decide: 'decision', test: 'test' };
+const OPEN = new Set(['need', 'verify']);
 function esc(t) { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; }
 function url(dir, file) { return '/' + [dir, ...file.split('/')].map(encodeURIComponent).join('/'); }
+function daysAgo(date) {
+  if (!date) return null;
+  const d = Math.floor((Date.now() - new Date(date + 'T12:00:00')) / 86400000);
+  return d <= 0 ? 'today' : d === 1 ? 'yesterday' : `${d} days ago`;
+}
+function hint(i) {
+  const bits = [];
+  if (i.unit) bits.push(`in ${i.unit}`);
+  if (i.expect) bits.push(`expect ${i.expect}`);
+  return bits.join(' · ');
+}
+
+// Part chips: download the print file, or open it in the 3D viewer
+function partChips(p, ids) {
+  if (!ids || !ids.length) return '';
+  return `<div class="parts">${ids.map(id => {
+    const stl = `${p.dir}/out/${id}_print.stl`, mf = `${p.dir}/out/${id}_print.3mf`;
+    return `<span class="part"><b>${esc(id)}</b><a href="/?show=${encodeURIComponent(stl)}" title="Open in the 3D viewer">view</a>
+      · <a href="${url(p.dir, `out/${id}_print.3mf`)}" download title="Download ${esc(mf)}">⬇ 3mf</a></span>`;
+  }).join('')}</div>`;
+}
+
+// Plain-text answer sheet for chat: one numbered blank per open ask, units included
+function answerSheet(p) {
+  const asks = p.items.filter(i => OPEN.has(i.state) && i.kind !== 'photo');
+  const photos = p.items.filter(i => OPEN.has(i.state) && i.kind === 'photo');
+  const tests = p.items.filter(i => i.state === 'pending');
+  const lines = [`${p.project}: answers`];
+  asks.forEach((i, n) => {
+    const h = [i.unit, i.expect ? `expect ${i.expect}` : ''].filter(Boolean).join(', ');
+    lines.push(`${n + 1}. ${i.what}${h ? ` (${h})` : ''}: ${i.blank || '___'}`);
+  });
+  if (photos.length) { lines.push('', 'Photos attached:'); photos.forEach(i => lines.push(`- [ ] ${i.what}`)); }
+  if (tests.length) { lines.push('', 'Results (if you have them yet):'); tests.forEach(i => lines.push(`- ${i.what}: ___`)); }
+  return lines.join('\n');
+}
+
+async function copySheet(btn, text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) {   // fallback for browsers that block the clipboard API
+    const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t);
+    t.select(); document.execCommand('copy'); t.remove();
+  }
+  btn.classList.add('done'); btn.textContent = '✓ Copied: paste it into chat and fill in the blanks';
+  setTimeout(() => { btn.classList.remove('done'); btn.textContent = btn.dataset.label; }, 4000);
+}
 
 function render(projects) {
   const main = document.getElementById('main');
   if (!projects.length) { main.innerHTML = '<p class="empty">No tracker.json files yet.</p>'; return; }
-  // projects with the most open asks first
-  const open = p => p.items.filter(i => i.state === 'need' || i.state === 'verify').length;
+  const open = p => p.items.filter(i => OPEN.has(i.state)).length;
   projects.sort((a, b) => open(b) - open(a));
-  main.innerHTML = projects.map(p => {
+  main.innerHTML = projects.map((p, pi) => {
     const items = [...p.items].sort((a, b) => ORDER[a.state] - ORDER[b.state]);
-    const rows = items.filter(i => i.kind !== 'photo');
+    const active = items.filter(i => i.kind !== 'photo' && i.state !== 'have');
+    const answered = items.filter(i => i.kind !== 'photo' && i.state === 'have');
     const photos = items.filter(i => i.kind === 'photo');
     const n = open(p);
-    const row = i => `<div class="row"><span class="chip ${i.state}">${LABEL[i.state] || i.state}</span><div>
-        <div class="what">${esc(i.what)}<span class="kind">${KIND[i.kind] || ''}</span></div>
+    // "B1 waits on: ..."
+    const blocked = {};
+    p.items.filter(i => i.blocks && i.state !== 'have').forEach(i => (blocked[i.blocks] ??= []).push(i.what));
+    const blocks = Object.entries(blocked).map(([id, whats]) =>
+      `<p class="blocks"><b>${esc(id)}</b> waits on: ${whats.map(esc).join(', ')}</p>`).join('');
+    const row = i => {
+      const ago = daysAgo(i.asked);
+      const stale = ago && /days/.test(ago) && parseInt(ago) >= 3;
+      return `<div class="row"><span class="chip ${i.state}">${LABEL[i.state] || i.state}</span><div>
+        <div class="what">${esc(i.what)}<span class="kind">${KIND[i.kind] || ''}</span>${ago ? `<span class="ago${stale ? ' stale' : ''}">asked ${ago}</span>` : ''}</div>
+        ${hint(i) ? `<div class="hint">${esc(hint(i))}</div>` : ''}
         ${i.value ? `<div class="value">${esc(i.value)}</div>` : ''}
-        ${i.how && i.state !== 'have' ? `<div class="how">${esc(i.how)}</div>` : ''}
-        ${i.why ? `<div class="why">Why: ${esc(i.why)}</div>` : ''}</div></div>`;
+        ${i.how ? `<div class="how">${esc(i.how)}</div>` : ''}
+        ${i.why ? `<div class="why">Why: ${esc(i.why)}</div>` : ''}
+        ${i.ref ? `<div class="ref"><img src="${url(p.dir, i.ref)}" alt="reference" loading="lazy"><span>reference</span></div>` : ''}
+        ${partChips(p, i.parts)}</div></div>`;
+    };
+    const doneRow = i => `<div class="done-row"><div><b>${esc(i.what)}</b>: <span class="value">${esc(i.value || '')}</span>${partChips(p, i.parts)}</div>
+        <span class="date">${esc(i.answered || '')}</span></div>`;
     const photo = i => i.state === 'have' && i.file
       ? `<div class="ph"><img src="${url(p.dir, i.file)}" alt="${esc(i.what)}" loading="lazy"><div class="cap">${esc(i.what)}</div></div>`
       : `<div class="ph need"><div class="box">📷</div><div class="cap">${esc(i.what)}<span class="how">${esc(i.how)}</span></div></div>`;
+    const label = n ? `📋 Copy my answers (${n} open)` : '';
     return `<section class="project">
-      <h2>${esc(p.project)} <span class="count ${n ? 'need' : 'have'}">${n ? n + ' open' : 'nothing needed'}</span></h2>
+      <h2>${esc(p.project)} <span class="count ${n ? 'need' : 'have'}">${n ? n + ' open' : 'nothing needed'}</span>
+        <span class="links"><a href="${url(p.dir, 'PARTS.md')}">parts log</a><a href="${url(p.dir, 'NOTES.md')}">notes</a></span></h2>
       <p class="status">${esc(p.status)}</p>
-      <h3>Info</h3>${rows.map(row).join('') || '<p class="empty">none</p>'}
+      ${blocks}
+      ${label ? `<button class="copy" data-project="${pi}" data-label="${esc(label)}">${esc(label)}</button>` : ''}
+      <h3>Open</h3>${active.map(row).join('') || '<p class="empty">nothing open</p>'}
+      ${answered.length ? `<details class="answered"><summary>Answered (${answered.length})</summary>${answered.map(doneRow).join('')}</details>` : ''}
       <h3>Photos</h3><div class="photos">${photos.map(photo).join('') || '<p class="empty">none</p>'}</div>
     </section>`;
   }).join('');
-  main.querySelectorAll('.ph img').forEach(img => img.onclick = () => {
+  main.querySelectorAll('button.copy').forEach(b => b.onclick = () => copySheet(b, answerSheet(projects[+b.dataset.project])));
+  main.querySelectorAll('.ph img, .ref img').forEach(img => img.onclick = () => {
     const z = document.getElementById('zoom'); z.querySelector('img').src = img.src; z.style.display = 'flex';
   });
 }
@@ -98,8 +185,10 @@ async function poll() {
     const data = await (await fetch('/api/tracker', { cache: 'no-store' })).json();
     if (pageVersion === null) pageVersion = data.page;
     else if (data.page !== pageVersion) { location.reload(); return; }
+    const openDetails = [...document.querySelectorAll('details.answered[open]')].length;
     const sig = JSON.stringify(data.projects);
-    if (sig !== last) { last = sig; render(data.projects); }
+    if (sig !== last) { last = sig; render(data.projects);
+      if (openDetails) document.querySelectorAll('details.answered').forEach(d => d.open = true); }
   } catch (e) { /* server restarting */ }
   setTimeout(poll, 3000);
 }

@@ -16,8 +16,8 @@ fixed grey blade. See `photos/stripper-top-view_labeled.jpg`.
   ejector finger's path, and still jams.
 
 ## Constraints learned
-- Blade slot width **2.2 mm** fits the grey blade well (confirmed on the printed part).
-- Tooth width 14 mm; the original teeth are about 14.5 mm at the base.
+- Measured values (slot, blade base, tooth width, water flow) are in `tracker.json`
+  under Answered; test results are in `PARTS.md`.
 - **The keel must stay above the water line**, or ice freezes around it.
   The old part had only 2 mm below the tooth and was fine. Water line unknown.
 - Nothing thin: a fragment must never end up in the ice. Colored PETG preferred

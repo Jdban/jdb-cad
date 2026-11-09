@@ -491,6 +491,7 @@ function renderList(force = false) {
 }
 
 let first = true;
+const urlShow = (new URLSearchParams(location.search).get('show') || '').split(',').filter(Boolean);
 let pageVersion = null;
 let focusOffsets = null;
 let focusShow = [];
@@ -529,7 +530,12 @@ async function poll() {
     focusOffsets = focus && focus.offsets ? focus.offsets : null;
     const focusKey = focus ? JSON.stringify([focus.show, focus.arrange, focus.explode]) : null;   // content only: rewriting the same list keeps your view
     const wanted = focus ? focus.show.filter(p => models.has(p)) : [];
-    if (wanted.length && focusKey !== lastFocus) {
+    if (first && urlShow.length) {
+      // opened from a link like /?show=proj/out/I5_print.stl (e.g. the tracker): show exactly that
+      lastFocus = focusKey;
+      for (const p of models.keys()) await show(p, urlShow.includes(p));
+      applyStyle(); setView('iso');
+    } else if (wanted.length && focusKey !== lastFocus) {
       // focus list changed (or first load): show exactly those models
       lastFocus = focusKey;
       if (typeof focus.arrange === 'boolean') document.getElementById('arrange').checked = focus.arrange;

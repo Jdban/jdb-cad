@@ -107,17 +107,38 @@ whenever you talk about a part.
 
 ## Project tracker
 
-`http://localhost:8765/tracker` shows each project's `tracker.json`:
-`{"project": "...", "status": "one line", "items": [{"kind": "measure|photo|decide|test",
-"state": "need|verify|pending|have", "what": "...", "value": "...", "how": "...", "why": "...",
-"file": "photos/x.jpg"}]}`. It is the single list of open items (don't duplicate them
-in NOTES.md). Add asks as they come up, flip them to `have` with the value or photo
-when answered, and point the user at the tracker instead of re-listing asks in chat.
+`http://localhost:8765/tracker` renders each project's `tracker.json`. It is the
+single list of open items, and the place measured values live once answered.
+
+```json
+{"project": "...", "status": "the NEXT ACTION, e.g. 'Send the B1 measurements, then I'll make the B1 test plate'",
+ "items": [{"kind": "measure|photo|decide|test", "state": "need|verify|pending|have",
+            "what": "...", "how": "how to measure / what to capture", "why": "...",
+            "unit": "mm", "expect": "~330", "ref": "photos/labeled.jpg",
+            "asked": "2026-11-09", "answered": "2026-11-10", "value": "the answer",
+            "parts": ["I5", "test-K"], "blocks": "B1", "file": "photos/x.jpg",
+            "blank": "OVER / INTO, ___ mm"}]}   // blank: custom fill-in for the copy sheet
+```
+
+- **Every ask has a `unit`, an `expect`ed range when you can guess one, and a `ref`
+  photo** (labeled if possible) when "where" is ambiguous. That's what stops
+  readings like "0.332 m" (around or across?).
+- `blocks` links asks to the part waiting on them ("B1 waits on: ..."); `parts` adds
+  view/download chips for printed IDs and test plates (files in `out/`).
+- The page's **📋 Copy my answers** button gives the user a numbered fill-in sheet of
+  every open ask, so answers come back in one message.
+- **Don't re-list open asks in chat.** Say "N open on the tracker; new: X" and name
+  only new or changed items. Stale asks show "asked N days ago" on the page.
+- When answered: `state: have`, `value`, `answered` date (it folds into "Answered").
+  Measured values live here; test outcomes live in `PARTS.md` (the tracker item
+  just points at the ID). Save user photos into `<project>/photos/` and list them.
 
 ## Viewer
 
 - Lists `.stl`/`.obj` files; by default only `*_print*`, focused and visible files
   ("Show all files" reveals the rest). Files and the page itself reload automatically.
+- `/?show=proj/out/I5_print.stl` (comma-separated) opens the viewer on exactly those
+  files (the tracker's "view" chips use it).
 - Tools: **Show overhangs** (red = steeper than 45 deg, not on the bed; red is
   reserved for this), **Show print bed** (256 x 256), **Section** (X/Y/Z slider),
   **Measure** (two clicks), **Explode/Assemble**.
@@ -186,6 +207,6 @@ tall narrow parts; lower layer height is cosmetic.
 - **Short by default**: the decision, what they need to do, the file name and link.
   Details, tables and alternatives only when asked or when a choice is needed.
 - Say plainly what's a guess and how to check it. Don't re-list open asks: point
-  at the tracker.
+  at the tracker ("N open; new: X").
 - One project per session works best (state lives in NOTES/PARTS/tracker); suggest
   a fresh session when switching projects or after a long run.
