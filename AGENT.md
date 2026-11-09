@@ -178,6 +178,9 @@ height is cosmetic, not structural.
 - `Text(label, font_size=...)` needs a system font. Check that engravings stayed
   inside the face (compare the volume removed with the text volume).
 - 3MF: `Mesher().add_shape(...)` once per object gives separate plate objects.
+- `trimesh` `mesh.section()` can silently drop loops on some meshes (it showed only
+  the arm through a solid keel). Before trusting or drawing a section, confirm with
+  `mesh.contains(points)`; for drawings, sample a grid with `contains` instead.
 - A cut meant to keep "only the top" can keep stray bits elsewhere. Check the
   body count after every boolean that removes material.
 
