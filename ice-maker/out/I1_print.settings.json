@@ -1,0 +1,21 @@
+{
+  "title": "I1: ice maker tooth",
+  "settings": [
+    [
+      "Filament",
+      "PETG (colored)",
+      "Pick any PETG preset, e.g. Generic PETG"
+    ],
+    [
+      "Wall loops",
+      "6",
+      "Default 2"
+    ],
+    [
+      "Sparse infill density",
+      "100%",
+      "Default 15%"
+    ]
+  ],
+  "note": "Prints FLAT, don't auto-orient. Pull the supports out of the slot with pliers, away from the ice maker, and check no bits are left."
+}

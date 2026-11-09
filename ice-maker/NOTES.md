@@ -6,7 +6,7 @@ them and cubes slide out over them. One tooth broke off, leaving a stub on the
 outer wall, so cubes catch in the gap and jam. This part replaces that tooth:
 the tooth top sits over the stub, an arm runs down the outside of the outer wall,
 and a hook catches under its bottom edge. A groove in the underside rides on a
-fixed grey blade. See `photos/stripper-top-view_labeled.png`.
+fixed grey blade. See `photos/stripper-top-view_labeled.jpg`.
 
 ## History
 - `older-versions/`: the user's Tinkercad iterations from July 2025. `(4)` is the
@@ -25,12 +25,17 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
 - Thin spot: the crossbar above the wall notch is about 3 mm at the edges
   (unchanged from the part in use).
 
-## Current design (`ice_maker_clip.py`)
-- Rebuild of `(4)` matches the original within 0.003 mm.
-- Added a full-width keel (`KEEL_DEPTH`, default 5 mm) with the blade slot
-  running through it, so the blade stops sideways sliding.
-- Prints standing on the arm's outer face: no supports (flat would put the half
-  above the slot over air).
+## Current design (`ice_maker_clip.py`, version I5, installed)
+- All dimensions live in the `Tooth` dataclass; versions I1-I5 and the fit-test
+  sets are named variations of it. `python ice_maker_clip.py list` shows them.
+- Rebuild of `(4)` (I1) matches the original within 0.004 mm.
+- Full-width keel, 3 mm deep, with the blade slot through it (2.2 mm on the thin
+  part of the blade, 7 mm near the wall for the 6.37 mm blade base), so the blade
+  stops the tooth sliding sideways. Notch 6.6 mm to the arm (N6.6 test), arm +0.5 mm,
+  1 mm lead-in chamfers, ID engraved on the arm.
+- Prints FLAT (each layer holds the whole J). I5 used a 0.6 mm slot skin; the next
+  version uses slicer supports in the slot instead (`slot_skin=0`).
+- Open items live in `tracker.json` (http://localhost:8765/tracker), not here.
 
 ## Lessons
 - Printed STANDING (arm face down) the 3 mm keel part snapped at the thin neck
@@ -51,13 +56,6 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
   needed); a tapered tip like the original teeth (only matters if cubes catch or the
   fingers rub).
 
-## Open
-- Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
-  overnight part while the ice maker is first switched back on (2026-11-08).
-- Ice maker had zero water after being switched on (it had been off ~9 months).
-  Recheck after the first cool-down; if still dry, suspect a frozen fill tube or a
-  stuck ice-maker valve after long disuse. Throw out the first few batches of ice.
-
 ## Water supply (slow flow)
 - Fridge dispenser: 1 cup in ~90 s (normal is 7-10 s). The previous fridge was slow
   too, so the cause is the supply, not the fridge.
@@ -67,5 +65,5 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
 - Bucket test (disconnect at the back of the fridge into a bucket) to confirm supply vs fridge.
 - **Renovation (planned soon): have the plumber add a dedicated fridge line with a
   quarter-turn shutoff (no saddle valve) and a braided stainless supply hose.**
-- Fit tests K3 / K5 / K8 (`out/ice-tooth_fit-test-set_print.3mf`): dip each in a
-  filled tray; pick the deepest that comes out dry with a few mm to spare.
+- Ice maker had zero water when first switched back on (off ~9 months): first fills
+  are small until the flow is fixed. Throw out the first few batches of ice.

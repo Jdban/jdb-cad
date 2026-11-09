@@ -8,7 +8,11 @@ viewer/focus.json
 viewer/.server.pid
 viewer/.server.log
 
-# generated example output
+# generated output: only printed parts (files named by their ID, e.g. I5_print.3mf)
+# and printed fit-test sets (test-*) are kept; everything else is rebuilt on demand
+*/out/*
+!*/out/[A-Z][0-9]*
+!*/out/test-*
 examples/out/
 
 # build artifacts (but keep the user's original downloads)

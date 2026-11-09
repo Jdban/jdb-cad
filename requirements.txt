@@ -1,10 +1,12 @@
-build123d
-bd_warehouse
-trimesh
-numpy
-matplotlib
-scipy
-rtree
-manifold3d
-shapely
-networkx
+# Direct dependencies, pinned to the versions this repo was tested with (tools/regress.py).
+# build123d changes its API between releases: upgrade deliberately, then run regress.py.
+build123d==0.13.0
+bd-warehouse==0.4.0
+trimesh==5.2.0
+numpy==2.5.4
+matplotlib==3.11.2
+scipy==1.18.1
+rtree==1.4.1
+manifold3d==3.5.4
+shapely==2.2.0
+networkx==3.7

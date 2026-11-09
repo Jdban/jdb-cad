@@ -1,0 +1,21 @@
+{
+  "title": "I2: ice maker tooth",
+  "settings": [
+    [
+      "Filament",
+      "PETG (colored)",
+      "Pick any PETG preset, e.g. Generic PETG"
+    ],
+    [
+      "Wall loops",
+      "6",
+      "Default 2"
+    ],
+    [
+      "Sparse infill density",
+      "100%",
+      "Default 15%"
+    ]
+  ],
+  "note": "Prints standing on the arm's outer face. Layer lines cross the neck above the notch (weak)."
+}

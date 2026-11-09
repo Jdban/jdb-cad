@@ -1,0 +1,171 @@
+{
+  "stem": "test-N",
+  "script": "ice-maker/ice_maker_clip.py",
+  "describe": "Notch length from the wall top to the arm",
+  "params": {
+    "N5.6": {
+      "thick": 14.0,
+      "tooth_x0": 16.0,
+      "tooth_x1": 51.0,
+      "bar_y0": 18.0,
+      "bar_y1": 23.8,
+      "roof_peak": 26.0,
+      "roof_hip_x": 19.0,
+      "arm_x0": 48.1,
+      "arm_bottom": -22.0,
+      "hook_x0": 43.0,
+      "hook_top": -19.0,
+      "hook_lip_x": 45.9,
+      "hook_lip_y": -19.91,
+      "arm_extra": 0.0,
+      "arm_shift": -0.5,
+      "notch_x0": 42.0,
+      "notch_x1": 48.1,
+      "notch_depth": 3.0,
+      "groove_w": 2.2,
+      "groove_x": [
+        16.0,
+        36.0
+      ],
+      "groove_wide_w": 7.0,
+      "groove_wide_x": [
+        36.0,
+        42.0
+      ],
+      "groove_depth": 2.0,
+      "wide_from": 28.0,
+      "keel_depth": 3.0,
+      "keel_x": [
+        16.0,
+        36.0
+      ],
+      "keel_taper": true,
+      "lead_in": 1.0,
+      "slot_skin": 0.6
+    },
+    "N6.1": {
+      "thick": 14.0,
+      "tooth_x0": 16.0,
+      "tooth_x1": 51.0,
+      "bar_y0": 18.0,
+      "bar_y1": 23.8,
+      "roof_peak": 26.0,
+      "roof_hip_x": 19.0,
+      "arm_x0": 48.1,
+      "arm_bottom": -22.0,
+      "hook_x0": 43.0,
+      "hook_top": -19.0,
+      "hook_lip_x": 45.9,
+      "hook_lip_y": -19.91,
+      "arm_extra": 0.0,
+      "arm_shift": 0.0,
+      "notch_x0": 42.0,
+      "notch_x1": 48.1,
+      "notch_depth": 3.0,
+      "groove_w": 2.2,
+      "groove_x": [
+        16.0,
+        36.0
+      ],
+      "groove_wide_w": 7.0,
+      "groove_wide_x": [
+        36.0,
+        42.0
+      ],
+      "groove_depth": 2.0,
+      "wide_from": 28.0,
+      "keel_depth": 3.0,
+      "keel_x": [
+        16.0,
+        36.0
+      ],
+      "keel_taper": true,
+      "lead_in": 1.0,
+      "slot_skin": 0.6
+    },
+    "N6.6": {
+      "thick": 14.0,
+      "tooth_x0": 16.0,
+      "tooth_x1": 51.0,
+      "bar_y0": 18.0,
+      "bar_y1": 23.8,
+      "roof_peak": 26.0,
+      "roof_hip_x": 19.0,
+      "arm_x0": 48.1,
+      "arm_bottom": -22.0,
+      "hook_x0": 43.0,
+      "hook_top": -19.0,
+      "hook_lip_x": 45.9,
+      "hook_lip_y": -19.91,
+      "arm_extra": 0.0,
+      "arm_shift": 0.5,
+      "notch_x0": 42.0,
+      "notch_x1": 48.1,
+      "notch_depth": 3.0,
+      "groove_w": 2.2,
+      "groove_x": [
+        16.0,
+        36.0
+      ],
+      "groove_wide_w": 7.0,
+      "groove_wide_x": [
+        36.0,
+        42.0
+      ],
+      "groove_depth": 2.0,
+      "wide_from": 28.0,
+      "keel_depth": 3.0,
+      "keel_x": [
+        16.0,
+        36.0
+      ],
+      "keel_taper": true,
+      "lead_in": 1.0,
+      "slot_skin": 0.6
+    },
+    "N7.1": {
+      "thick": 14.0,
+      "tooth_x0": 16.0,
+      "tooth_x1": 51.0,
+      "bar_y0": 18.0,
+      "bar_y1": 23.8,
+      "roof_peak": 26.0,
+      "roof_hip_x": 19.0,
+      "arm_x0": 48.1,
+      "arm_bottom": -22.0,
+      "hook_x0": 43.0,
+      "hook_top": -19.0,
+      "hook_lip_x": 45.9,
+      "hook_lip_y": -19.91,
+      "arm_extra": 0.0,
+      "arm_shift": 1.0,
+      "notch_x0": 42.0,
+      "notch_x1": 48.1,
+      "notch_depth": 3.0,
+      "groove_w": 2.2,
+      "groove_x": [
+        16.0,
+        36.0
+      ],
+      "groove_wide_w": 7.0,
+      "groove_wide_x": [
+        36.0,
+        42.0
+      ],
+      "groove_depth": 2.0,
+      "wide_from": 28.0,
+      "keel_depth": 3.0,
+      "keel_x": [
+        16.0,
+        36.0
+      ],
+      "keel_taper": true,
+      "lead_in": 1.0,
+      "slot_skin": 0.6
+    },
+    "kind": "notch"
+  },
+  "built": "2026-11-09",
+  "frozen": true,
+  "printed": "2026-11-09, draft"
+}

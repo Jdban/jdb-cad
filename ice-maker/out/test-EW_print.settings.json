@@ -1,0 +1,11 @@
+{
+  "title": "test-EW: Where the keel hits the blade base near the wall (E30 / E26 / W30)",
+  "settings": [
+    [
+      "Process preset",
+      "0.28mm Extra Draft",
+      "Default 0.20mm Standard: fit test only"
+    ]
+  ],
+  "note": "Don't auto-orient. No hook, so nothing to snap: slide each on and compare."
+}

@@ -1,24 +1,20 @@
 # Ice maker: parts log
 
-Every printed part has an ID. From now on the ID is engraved on the part;
-earlier ones (marked "not engraved") were assigned after the fact.
-Prefix: **I** = full tooth. Fit-test pieces keep their engraved test labels.
+Every printed part has an ID. From I4 on the ID is engraved on the part; earlier
+ones were assigned after the fact. Prefix: **I** = full tooth; fit-test plates are
+`test-*`, and each piece carries its engraved label. Printed files in `out/` are
+frozen (see `out/<ID>.params.json`); never rebuild over them, make a new ID.
 
 | ID | File | Printed | What it is | Result |
 |---|---|---|---|---|
-| I1 | `older-versions/Ice Maker Fix JDB (4).stl` | Jul 2025 (not engraved) | Original Tinkercad tooth, 2 mm groove, no keel | Fits; slides sideways into the ejector finger's path and jams |
-| I2 | `out/ice-tooth_keel3_print` (standing version) | 2026-11-08, colored PETG (not engraved) | 3 mm keel, printed standing on the arm face | Snapped at the neck above the wall notch while snapping on |
-| I3 | `out/ice-tooth_keel3_print` | 2026-11-09, colored PETG (not engraved) | 3 mm keel, printed flat with slot skin and lead-ins | Too tight to snap on. With the arm snapped off: sits down, but stops a few mm short of the wall |
-| K3 / K5 / K8 | `out/ice-tooth_fit-test-set_print` | 2026-11-08 | Tops only, keel depth 3 / 5 / 8 mm | All dry after the first (small, low-pressure) fill. Retest after a normal fill |
-| E30 / E26 / W30 | `out/ice-tooth_wall-fit-test_print` | next | Tops only, 3 mm keel: keel ends earlier (E30, E26) or slot 5 mm near the wall (W30) | W30 best; E30 sits tilted; E26 worst. W30's 5 mm section still too narrow |
+| I1 | `out/I1` (rebuild of `older-versions/Ice Maker Fix JDB (4).stl`) | Jul 2025 | Original Tinkercad tooth, 2 mm groove, no keel | Fits; slides sideways into the ejector finger's path and jams |
+| I2 | `out/I2_print` | 2026-11-08, colored PETG, standing | 3 mm keel | Snapped at the neck above the wall notch while snapping on (layer lines across the neck) |
+| I3 | `out/I3_print` | 2026-11-09, colored PETG, flat | 3 mm keel, slot skin, lead-ins | Too tight to snap on; without the arm it stops a few mm short of the wall |
+| test-K: K3 / K5 / K8 | `out/test-K_print` | 2026-11-08, draft | Tops only, keel depth 3 / 5 / 8 mm | All dry after the first (small) fill; retest after a normal fill |
+| test-EW: E30 / E26 / W30 | `out/test-EW_print` | 2026-11-09, draft | Tops only, 3 mm keel: keel ends earlier (E30, E26) or slot 5 mm near the wall (W30) | W30 best; E30 tilted; E26 worst. W30's 5 mm still too narrow |
+| test-N: N5.6 / N6.1 / N6.6 / N7.1 | `out/test-N_print` | 2026-11-09, draft | I4 top + 12 mm arm stub, notch length to the arm | **N6.6 fits** |
+| I5 | `out/I5_print` | 2026-11-09, colored PETG, flat | Slot 7 mm near the wall (blade base 6.37 mm), notch 6.6, arm +0.5, slot skin | **Installed, fits, doesn't slide.** Watching over ice cycles |
 
-| W6 / W7 / W8 | `out/ice-tooth_wide-fit-test_print` | not printed | W30 design with the near-wall slot 6 / 7 / 8 mm wide | Skipped: measured the blade base instead (6.37 mm) |
-
-| I4 | `out/ice-tooth_I4_print` | not printed | 3 mm keel, 2.2 slot, slot 7 mm wide from 2 mm before W30 (blade base 6.37 mm), arm +0.5 mm, ID engraved on the arm | Superseded by I5 before printing |
-
-| N5.6 / N6.1 / N6.6 / N7.1 | `out/ice-tooth_notch-fit-test_print` | 2026-11-09 | I4 top + 12 mm arm stub (no hook); notch length to the arm 5.6 / 6.1 (current) / 6.6 / 7.1 mm | **N6.6 fits** |
-
-| I5 | `out/ice-tooth_I5_print` | 2026-11-09, colored PETG, flat | I4 + notch 6.6 mm to the arm (arm and hook 0.5 mm further out), ID engraved on the arm | Installed, seems to fit. Watching over ice cycles |
-
-Designed but not printed: `ice-tooth_keel3_arm+1.5` (arm 1.5 mm longer), the
-2.0 / 2.2 / 2.4 / K12 fit set (superseded). 
+Designed but not printed (definitions only, no files): I4 (superseded by I5 before
+printing); earlier experiments (5 mm keel, arm +1.5 mm, W6/W7/W8 slot widths: the
+blade base was measured instead).

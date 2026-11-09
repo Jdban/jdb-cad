@@ -8,6 +8,7 @@ Usage: python3 viewer/serve.py [port]
 import json
 import os
 import sys
+from urllib.parse import unquote
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -80,7 +81,9 @@ class Handler(SimpleHTTPRequestHandler):
         if host not in ("localhost", "127.0.0.1", "::1"):
             self.send_error(403)
             return False
-        if any(part.startswith(".") for part in self.path.split("?")[0].split("/")):
+        # decode first: "/%2egit/HEAD" must be treated as "/.git/HEAD"
+        path = unquote(self.path.split("?")[0].split("#")[0]).replace("\\", "/")
+        if any(part.startswith(".") for part in path.split("/")):
             self.send_error(404)   # .git, .venv, pid/log files
             return False
         return True
