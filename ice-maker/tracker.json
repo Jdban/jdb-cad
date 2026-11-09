@@ -1,6 +1,6 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "I5 installed and fits. Watching it; possible I6 idea: skirts over the stub's sides (only if I5 slides and fingers have room).",
+  "status": "I5 installed, fits, and doesn't slide. Watching it over ice cycles.",
   "items": [
     {
       "kind": "test",
@@ -10,16 +10,10 @@
     },
     {
       "kind": "test",
-      "state": "pending",
-      "what": "Does I5 slide sideways over a few cycles?",
-      "how": "If it stays put, no skirts needed. If it shifts, skirts over the stub's sides (I6) are next."
-    },
-    {
-      "kind": "photo",
-      "state": "need",
-      "what": "Ejector finger beside the stub",
-      "how": "Ice maker OFF: turn the ejector by hand (or catch a harvest). Photo of where the finger passes the stub / the dark gap next to it.",
-      "why": "A skirt on that side must not sit in the finger's path."
+      "state": "have",
+      "what": "Does I5 slide sideways?",
+      "how": "If it stays put, no skirts needed. If it shifts, skirts over the stub's sides (I6) are next.",
+      "value": "No (2026-11-09): stub skirts not needed for now"
     },
     {
       "kind": "photo",

@@ -47,6 +47,10 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
 - The 0.6 mm slot skin (I3-I5) was a pain to cut out. From I6 on: no skin, slicer
   supports in the slot instead (tree, not build-plate-only); pull with pliers, check for bits.
 
+- Ideas only if needed later: skirts over the stub's sides (I5 doesn't slide, so not
+  needed); a tapered tip like the original teeth (only matters if cubes catch or the
+  fingers rub).
+
 ## Open
 - Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
   overnight part while the ice maker is first switched back on (2026-11-08).
