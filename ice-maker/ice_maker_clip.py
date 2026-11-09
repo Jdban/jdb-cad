@@ -21,6 +21,8 @@ from build123d import (
 )
 
 OUT = Path(__file__).parent / "out"
+sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
+from label import engrave  # noqa: E402
 MIN = (Align.MIN, Align.MIN, Align.MIN)
 
 THICK = 14.0                 # tooth width along the wall (original teeth ~14.5)
@@ -165,17 +167,16 @@ FIT_TESTS = [            # (label, slot width, keel depth) -- 2.2 slot confirmed
     ("K8", GROOVE_W, 8.0),
 ]
 LABEL_DEPTH = 0.5
-LABEL_SIZE = 5.5
+LABEL_SIZE = 4.5
 
 
 def fit_test(label, groove_w, keel_depth):
     part = clip(True, groove_w, keel_depth)
     part = part & Pos(0, 0, -1) * Box(WALL_NOTCH_X[1], 40, THICK + 2, align=MIN)  # tooth only, no hook
-    # engrave the label on the outer side face (Z=0), reading upward in print orientation
-    face = Plane(origin=((TOOTH_X0 + KEEL_X[1]) / 2 - 1, (BAR_Y0 - keel_depth + BAR_Y1) / 2, 0),
-                 x_dir=(0, 1, 0), z_dir=(0, 0, -1))
-    txt = face * Text(label, font_size=LABEL_SIZE)
-    part -= extrude(txt, LABEL_DEPTH, dir=(0, 0, 1))
+    # engrave the label on the outer side face (Z=0), running along the tooth's length
+    # (the face is only ~9 mm tall with a shallow keel, but ~26 mm long)
+    part = engrave(part, label, origin=(27.0, (BAR_Y0 + BAR_Y1) / 2 + 0.2, 0.0),
+                   normal=(0, 0, -1), up=(0, 1, 0), size=LABEL_SIZE, depth=LABEL_DEPTH)
     # print orientation: tooth tip on the bed, wall end up
     part = part.rotate(Axis.Y, -90)
     bb = part.bounding_box()
