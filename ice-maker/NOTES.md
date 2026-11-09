@@ -35,7 +35,18 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
 ## Open
 - Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
   overnight part while the ice maker is first switched back on (2026-11-08).
-- Ice maker not filling after being switched on; dispenser has always been weak:
-  suspect low water pressure (supply valve, kinked line, inlet valve screen).
+- Ice maker had zero water after being switched on (it had been off ~9 months).
+  Recheck after the first cool-down; if still dry, suspect a frozen fill tube or a
+  stuck ice-maker valve after long disuse. Throw out the first few batches of ice.
+
+## Water supply (slow flow)
+- Fridge dispenser: 1 cup in ~90 s (normal is 7-10 s). The previous fridge was slow
+  too, so the cause is the supply, not the fridge.
+- Supply is a **saddle valve** spliced into a line under the house. Cycling it fully
+  closed then fully open improved flow to ~40 s per cup (2026-11-08). Still ~4x slow.
+- Next, cheap: cycle the saddle valve again; replace the fridge filter (in ~9 months).
+- Bucket test (disconnect at the back of the fridge into a bucket) to confirm supply vs fridge.
+- **Renovation (planned soon): have the plumber add a dedicated fridge line with a
+  quarter-turn shutoff (no saddle valve) and a braided stainless supply hose.**
 - Fit tests K3 / K5 / K8 (`out/ice-tooth_fit-test-set_print.3mf`): dip each in a
   filled tray; pick the deepest that comes out dry with a few mm to spare.
