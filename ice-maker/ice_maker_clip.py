@@ -44,7 +44,7 @@ ARM_EXTRA = 0.0              # lengthen the arm: moves the hook this much lower 
                              #   to get it under the wall bottom; a little looser vertically)
 
 # pocket over the wall top / tooth stub
-WALL_NOTCH_X = (42.0, 48.0)
+WALL_NOTCH_X = (42.0, 48.1)    # runs flush into the arm face (original had a 0.1 mm step at 48.0)
 WALL_NOTCH_DEPTH = 3.0
 
 # groove for the grey blade
