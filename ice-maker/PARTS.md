@@ -14,5 +14,7 @@ Prefix: **I** = full tooth. Fit-test pieces keep their engraved test labels.
 
 | W6 / W7 / W8 | `out/ice-tooth_wide-fit-test_print` | next | W30 design with the near-wall slot 6 / 7 / 8 mm wide | Pending |
 
+| I4 | `out/ice-tooth_I4_print` | next, colored PETG, flat | 3 mm keel, 2.2 slot, slot 7 mm wide from 2 mm before W30 (blade base 6.37 mm), arm +0.5 mm, ID engraved on the arm | Pending |
+
 Designed but not printed: `ice-tooth_keel3_arm+1.5` (arm 1.5 mm longer), the
-2.0 / 2.2 / 2.4 / K12 fit set (superseded). Next full tooth will be **I4**.
+2.0 / 2.2 / 2.4 / K12 fit set (superseded). 

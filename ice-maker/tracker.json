@@ -1,7 +1,13 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "W30 was best (E30 tilted, E26 worst), but its 5 mm wide section is too narrow. Testing W6 / W7 / W8. Next full tooth: I4.",
+  "status": "I4 ready to print (W7 slot from the 6.37 mm blade base). W6/W7/W8 test confirms the slot width.",
   "items": [
+    {
+      "kind": "test",
+      "state": "pending",
+      "what": "I4: install and run",
+      "how": "Does it seat fully (level with the white teeth, end at the wall), snap on without forcing, and stay put sideways? Then watch a few ice cycles."
+    },
     {
       "kind": "test",
       "state": "pending",
@@ -10,10 +16,11 @@
     },
     {
       "kind": "measure",
-      "state": "need",
+      "state": "have",
       "what": "Thick base of the grey blade",
       "how": "Calipers: (1) its width side to side (along the wall), (2) how far it reaches in from the wall before the blade gets thin. See the orange label in the stripper photo.",
-      "why": "Sets how wide the slot must be near the wall (W6 / W7 / W8 is the same question by trial)."
+      "why": "Sets how wide the slot must be near the wall (W6 / W7 / W8 is the same question by trial).",
+      "value": "6.37 mm side to side (reach from the wall: just leave room)"
     },
     {
       "kind": "test",
@@ -33,7 +40,7 @@
       "kind": "decide",
       "state": "pending",
       "what": "Arm length",
-      "how": "I3 was too tight to snap on. If I4 still is, use the +1.5 mm arm (file ready)."
+      "how": "I4 has +0.5 mm. If I4 is still too tight to snap on, go to +1.5 mm."
     },
     {
       "kind": "measure",

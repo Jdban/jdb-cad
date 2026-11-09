@@ -1,0 +1,21 @@
+{
+  "title": "I4: ice maker tooth (W7 slot, 3 mm keel, arm +0.5)",
+  "settings": [
+    [
+      "Filament",
+      "PETG (colored)",
+      "Pick any PETG preset, e.g. Generic PETG"
+    ],
+    [
+      "Wall loops",
+      "6",
+      "Default 2"
+    ],
+    [
+      "Sparse infill density",
+      "100%",
+      "Default 15%"
+    ]
+  ],
+  "note": "Prints FLAT, no supports, don't auto-orient. Before installing, cut out the thin skin across the bottom of the slot (narrow AND the wider part near the wall), away from the ice maker. Install: hook the bottom under the wall first, then rock the tooth down."
+}

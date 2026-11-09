@@ -149,6 +149,9 @@ def clip(with_keel: bool, groove_w=None, keel_depth=None, print_skin=False):
         x0, x1 = KEEL_X[0], (KEEL_X[1] - keel_depth) if KEEL_TAPER else KEEL_X[1]
         part += Pos(x0, BAR_Y0 - keel_depth, THICK / 2 - groove_w / 2 - 0.05) * Box(
             x1 - x0, SLOT_SKIN, groove_w + 0.1, align=MIN)
+        if WIDE_FROM is not None and WIDE_FROM < x1:   # skin across the widened section too
+            part += Pos(WIDE_FROM, BAR_Y0 - keel_depth, THICK / 2 - GROOVE_WIDE_W / 2 - 0.05) * Box(
+                x1 - WIDE_FROM, SLOT_SKIN, GROOVE_WIDE_W + 0.1, align=MIN)
     return part
 
 
@@ -206,7 +209,37 @@ WIDE_FIT_TESTS = [       # (label, widened slot width) -- all: full keel, widen 
     ("W8", 8.0),
 ]
 
+# Full tooth versions, each with its engraved part ID (see PARTS.md)
+VERSIONS = {
+    # I4: W7 fit (blade base measured 6.37 mm), widened from 2 mm earlier than W30,
+    # 3 mm keel, arm +0.5 mm for margin. Prints flat with the slot skin.
+    "I4": dict(keel=3.0, wide_from=28.0, wide_w=7.0, arm_extra=0.5),
+}
+
+
+def full_tooth(part_id):
+    """Build a numbered version: (in-use part, flat print part with skin + engraved ID)."""
+    global KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA
+    v = VERSIONS[part_id]
+    KEEL_X, WIDE_FROM, GROOVE_WIDE_W, ARM_EXTRA = (16.0, 36.0), v["wide_from"], v["wide_w"], v["arm_extra"]
+    part = clip(True, keel_depth=v["keel"])
+    printable = clip(True, keel_depth=v["keel"], print_skin=True)
+    # ID on the outside face of the arm, running along it (touches nothing)
+    printable = engrave(printable, part_id, origin=(TOOTH_X1, 0.0, THICK / 2),
+                        normal=(1, 0, 0), up=(0, 0, 1), size=5.0, depth=0.5)
+    return part, flat_for_print(printable)
+
+
 if __name__ == "__main__":
+    if "--version" in sys.argv:   # e.g. --version I4
+        pid = sys.argv[sys.argv.index("--version") + 1]
+        part, printable = full_tooth(pid)
+        write(part, f"ice-tooth_{pid}")
+        write(printable, f"ice-tooth_{pid}_print", step=False)
+        mesher = Mesher()
+        mesher.add_shape(printable)
+        mesher.write(str(OUT / f"ice-tooth_{pid}_print.3mf"))
+        sys.exit()
     if "--wide-fit-test" in sys.argv:
         tests, x = [], 0.0
         for label, w in WIDE_FIT_TESTS:
