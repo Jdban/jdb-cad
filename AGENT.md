@@ -58,10 +58,14 @@ learn a constraint ("keel must stay above the water line", "2.2 mm slot fits").
    0.01 mm. Only then change things.
 5. **Propose the change in plain words first** (what, why, tradeoffs), with
    one recommendation. Ask only questions whose answers change the design.
-6. **Fit-test early.** If any fit is uncertain (a slot, a clip, a depth), first
-   make **small labeled test pieces** that vary one dimension at a time (engrave
-   the label with build123d `Text`), with no clips so they come off easily. They
-   print in minutes and save full-size reprints.
+6. **Fit-test each contact point before the full part.** List every place the
+   part touches the real object (slot, notch, hook, hole, clamp face). For each
+   uncertain one, print **small labeled test pieces containing only that
+   feature**, varying **one dimension at a time**, with no clips so they can't
+   snap (engrave labels with `tools/label.py`). Put independent tests on the same
+   plate, use a draft preset, and **print the full part last**, once every
+   contact point is settled. (Ice maker: two full prints each failed on a single
+   feature; the small tests found each problem in one ~20 minute print.)
 7. **Modify, export, check.** Each script exports:
    - `name.step` in the in-use orientation (editable in any CAD tool)
    - `name_print.stl` and `.3mf`, **already rotated to the best print orientation**,
