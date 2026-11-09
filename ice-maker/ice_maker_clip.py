@@ -199,7 +199,28 @@ WALL_FIT_TESTS = [       # (label, keel X range, widen slot from X)
     ("W30", (16.0, 36.0), 30.0),
 ]
 
+# W30 was best, but its 5 mm widened slot is still too narrow for the blade's base.
+WIDE_FIT_TESTS = [       # (label, widened slot width) -- all: full keel, widen from X=30
+    ("W6", 6.0),
+    ("W7", 7.0),
+    ("W8", 8.0),
+]
+
 if __name__ == "__main__":
+    if "--wide-fit-test" in sys.argv:
+        tests, x = [], 0.0
+        for label, w in WIDE_FIT_TESTS:
+            KEEL_X, WIDE_FROM, GROOVE_WIDE_W = (16.0, 36.0), 30.0, w
+            t = fit_test(label, GROOVE_W, 3.0)
+            bb = t.bounding_box()
+            tests.append(Pos(x, 0, 0) * t)
+            x += bb.size.X + 8
+        write(Compound(tests), "ice-tooth_wide-fit-test_print", step=False)
+        mesher = Mesher()
+        for t in tests:
+            mesher.add_shape(t)
+        mesher.write(str(OUT / "ice-tooth_wide-fit-test_print.3mf"))
+        sys.exit()
     if "--wall-fit-test" in sys.argv:
         tests, x = [], 0.0
         for label, kx, wide in WALL_FIT_TESTS:

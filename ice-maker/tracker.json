@@ -1,18 +1,86 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "Wall-end fit test (E30 / E26 / W30) printing. Next full tooth will be I4, built from the winner.",
+  "status": "W30 was best (E30 tilted, E26 worst), but its 5 mm wide section is too narrow. Testing W6 / W7 / W8. Next full tooth: I4.",
   "items": [
-    {"kind": "test", "state": "pending", "what": "E30 / E26 / W30: which reaches the wall?", "how": "Slide each on (no hook). Does its end line up with the white teeth at the wall, and does it still grip the blade when nudged sideways?"},
-    {"kind": "test", "state": "pending", "what": "Water line after a NORMAL fill", "how": "The first fill was tiny (low water pressure). After a full-looking fill, dip K5 / K8 again: the deepest that comes out dry with a few mm to spare sets the keel depth.", "why": "Ice must not freeze around the keel."},
-    {"kind": "decide", "state": "pending", "what": "Arm length", "how": "I3 was too tight to snap on. If I4 still is, use the +1.5 mm arm (file ready)."},
-    {"kind": "measure", "state": "have", "what": "Blade slot width", "value": "2.2 mm fits the grey blade (confirmed on your printed part)"},
-    {"kind": "measure", "state": "have", "what": "Tooth width", "value": "14 mm (originals ~14.5 mm at the base)"},
-    {"kind": "measure", "state": "have", "what": "Keel depth tests (first fill)", "value": "K3, K5, K8 all dry, but the fill was very small"},
-    {"kind": "measure", "state": "have", "what": "Water flow", "value": "90 s per cup, 40 s after cycling the saddle valve. Normal is 7-10 s."},
-    {"kind": "photo", "state": "have", "what": "Stripper from above (labeled)", "file": "photos/stripper-top-view_labeled.png"},
-    {"kind": "photo", "state": "have", "what": "I2: where it snapped", "file": "photos/i2-snapped-here.png"},
-    {"kind": "photo", "state": "have", "what": "I3 installed with the arm", "file": "photos/i3-installed-with-arm.jpg"},
-    {"kind": "photo", "state": "have", "what": "I3 without arm: stops short of the wall", "file": "photos/i3-no-arm-stops-short.jpg"},
-    {"kind": "photo", "state": "need", "what": "Tray with a normal fill of water", "how": "From the side, at the tooth, so the water level vs the blade is visible."}
+    {
+      "kind": "test",
+      "state": "pending",
+      "what": "W6 / W7 / W8: widened slot near the wall",
+      "how": "Slide each on (no hook). Pick the NARROWEST that slides all the way out to the wall and sits flat, level with the white teeth."
+    },
+    {
+      "kind": "test",
+      "state": "have",
+      "what": "Wall-end test E30 / E26 / W30",
+      "how": "Slide each on (no hook). Does its end line up with the white teeth at the wall, and does it still grip the blade when nudged sideways?",
+      "value": "W30 best (widen the slot near the wall); E30 sits tilted; E26 worst. W30's 5 mm section still too narrow."
+    },
+    {
+      "kind": "test",
+      "state": "pending",
+      "what": "Water line after a NORMAL fill",
+      "how": "The first fill was tiny (low water pressure). After a full-looking fill, dip K5 / K8 again: the deepest that comes out dry with a few mm to spare sets the keel depth.",
+      "why": "Ice must not freeze around the keel."
+    },
+    {
+      "kind": "decide",
+      "state": "pending",
+      "what": "Arm length",
+      "how": "I3 was too tight to snap on. If I4 still is, use the +1.5 mm arm (file ready)."
+    },
+    {
+      "kind": "measure",
+      "state": "have",
+      "what": "Blade slot width",
+      "value": "2.2 mm fits the grey blade (confirmed on your printed part)"
+    },
+    {
+      "kind": "measure",
+      "state": "have",
+      "what": "Tooth width",
+      "value": "14 mm (originals ~14.5 mm at the base)"
+    },
+    {
+      "kind": "measure",
+      "state": "have",
+      "what": "Keel depth tests (first fill)",
+      "value": "K3, K5, K8 all dry, but the fill was very small"
+    },
+    {
+      "kind": "measure",
+      "state": "have",
+      "what": "Water flow",
+      "value": "90 s per cup, 40 s after cycling the saddle valve. Normal is 7-10 s."
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "Stripper from above (labeled)",
+      "file": "photos/stripper-top-view_labeled.png"
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "I2: where it snapped",
+      "file": "photos/i2-snapped-here.png"
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "I3 installed with the arm",
+      "file": "photos/i3-installed-with-arm.jpg"
+    },
+    {
+      "kind": "photo",
+      "state": "have",
+      "what": "I3 without arm: stops short of the wall",
+      "file": "photos/i3-no-arm-stops-short.jpg"
+    },
+    {
+      "kind": "photo",
+      "state": "need",
+      "what": "Tray with a normal fill of water",
+      "how": "From the side, at the tooth, so the water level vs the blade is visible."
+    }
   ]
 }

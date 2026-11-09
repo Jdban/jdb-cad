@@ -1,0 +1,11 @@
+{
+  "title": "Wide-slot fit test (W6 / W7 / W8), tops only",
+  "settings": [
+    [
+      "Process preset",
+      "0.28mm Extra Draft",
+      "Default 0.20mm Standard: fit test only, so draft is fine"
+    ]
+  ],
+  "note": "No supports. Don't auto-orient. Pick the narrowest that slides all the way out to the wall and sits flat."
+}
