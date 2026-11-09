@@ -142,6 +142,8 @@ contains the whole load path (for example, a hook profile lying in the layer
 plane). Thickening helps (bending strength goes as thickness squared), but
 orientation matters more.
 
+**Prefer slicer supports to sacrificial skins.** A thin printed membrane that the user must cut out of a slot was more annoying than pulling supports. Use supports (tree, not build-plate-only when the overhang is above part of the model) and say where they'll be.
+
 **Supports cost a lot.** On its side, a box's far end wall becomes a ceiling:
 118 g of support on a 250 g part. Report support weight and time. Offer
 alternatives (another orientation, a split part, a shallower feature). Never

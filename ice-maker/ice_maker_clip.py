@@ -58,10 +58,11 @@ GROOVE_DEPTH = 2.0
 # the wall edges when snapping on instead of catching (less bending at the neck).
 LEAD_IN = 1.0
 
-# Printing flat (every layer holds the whole J: strongest for snapping on) would
-# leave the blade slot's ceiling hanging over air. A thin sacrificial skin across
-# the slot's bottom turns that into a short bridge. Slice it off before installing.
-SLOT_SKIN = 0.6
+# Printing flat (every layer holds the whole J: strongest for snapping on) leaves
+# the blade slot's ceiling hanging over air. Default: let the slicer support it
+# (user prefers pulling supports to cutting a skin). Set e.g. 0.6 to add a thin
+# sacrificial skin across the slot bottom instead (turns the ceiling into a bridge).
+SLOT_SKIN = 0.0
 
 # NEW: keel. The tooth is made deeper at full width, with the blade slot
 # running up through it, so the blade can't slip out sideways. Full width
