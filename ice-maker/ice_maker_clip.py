@@ -38,6 +38,8 @@ HOOK_X0 = 43.0               # hook tip reaches in to here
 HOOK_TOP = -19.0             # top of the hook tip
 HOOK_LIP_X = 45.9            # small step in the hook
 HOOK_LIP_Y = -19.91
+ARM_EXTRA = 0.0              # lengthen the arm: moves the hook this much lower (more room
+                             #   to get it under the wall bottom; a little looser vertically)
 
 # pocket over the wall top / tooth stub
 WALL_NOTCH_X = (42.0, 48.0)
@@ -72,12 +74,14 @@ KEEL_TAPER = True            # 45 deg slope up to the bar at the wall end, to cl
 
 def profile_solid():
     """Crossbar + arm + hook, extruded THICK in Z."""
+    ARM_BOTTOM_, HOOK_TOP_, HOOK_LIP_Y_ = (ARM_BOTTOM - ARM_EXTRA, HOOK_TOP - ARM_EXTRA,
+                                           HOOK_LIP_Y - ARM_EXTRA)
     pts = [
         (TOOTH_X0, BAR_Y0), (TOOTH_X0, BAR_Y1), (TOOTH_X1, BAR_Y1),
-        (TOOTH_X1, ARM_BOTTOM),
-        (HOOK_X0 + LEAD_IN, ARM_BOTTOM), (HOOK_X0, ARM_BOTTOM + LEAD_IN),   # chamfered hook tip
-        (HOOK_X0, HOOK_TOP - LEAD_IN), (HOOK_X0 + LEAD_IN, HOOK_TOP),
-        (HOOK_LIP_X, HOOK_TOP), (HOOK_LIP_X, HOOK_LIP_Y), (ARM_X0, HOOK_LIP_Y),
+        (TOOTH_X1, ARM_BOTTOM_),
+        (HOOK_X0 + LEAD_IN, ARM_BOTTOM_), (HOOK_X0, ARM_BOTTOM_ + LEAD_IN),   # chamfered hook tip
+        (HOOK_X0, HOOK_TOP_ - LEAD_IN), (HOOK_X0 + LEAD_IN, HOOK_TOP_),
+        (HOOK_LIP_X, HOOK_TOP_), (HOOK_LIP_X, HOOK_LIP_Y_), (ARM_X0, HOOK_LIP_Y_),
         (ARM_X0, BAR_Y0),
     ]
     pts = [p for i, p in enumerate(pts) if p != pts[i - 1]]
@@ -188,6 +192,9 @@ if __name__ == "__main__":
         # one-off full part at another keel depth, e.g. --keel 3 -> ice-tooth_keel3_print
         depth = float(sys.argv[sys.argv.index("--keel") + 1])
         name = f"ice-tooth_keel{depth:g}"
+        if "--arm-extra" in sys.argv:   # e.g. --arm-extra 1.5 -> ice-tooth_keel3_arm+1.5_print
+            ARM_EXTRA = float(sys.argv[sys.argv.index("--arm-extra") + 1])
+            name += f"_arm+{ARM_EXTRA:g}"
         part = clip(with_keel=True, keel_depth=depth)
         write(part, name)
         printable = flat_for_print(clip(with_keel=True, keel_depth=depth, print_skin=True))
