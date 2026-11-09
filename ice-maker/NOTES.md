@@ -32,6 +32,13 @@ fixed grey blade. See `photos/stripper-top-view_labeled.png`.
 - Prints standing on the arm's outer face: no supports (flat would put the half
   above the slot over air).
 
+## Lessons
+- Printed STANDING (arm face down) the 3 mm keel part snapped at the thin neck
+  above the wall notch while snapping it on: layer lines ran across the neck.
+  Now prints FLAT (each layer holds the whole J), with a 0.6 mm sacrificial skin
+  closing the slot bottom so the slot ceiling is a short bridge. Cut the skin off
+  before installing. Added 1 mm lead-in chamfers on the hook tip and notch mouth.
+
 ## Open
 - Printing `out/ice-tooth_keel3_print` (3 mm keel, `--keel 3`) as the conservative
   overnight part while the ice maker is first switched back on (2026-11-08).

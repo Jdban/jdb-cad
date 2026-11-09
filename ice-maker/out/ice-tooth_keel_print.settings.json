@@ -17,5 +17,5 @@
       "Default 15%"
     ]
   ],
-  "note": "Leave supports off. Don't auto-orient: it's already standing the right way. Keel is 5 mm deep: must stay above the water line."
+  "note": "Prints FLAT, no supports. Before installing, slice off the thin skin across the bottom of the blade slot with a hobby knife (away from the ice maker)."
 }

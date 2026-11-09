@@ -50,6 +50,15 @@ GROOVE_WIDE_W = 5.0          # wider part near the wall
 GROOVE_WIDE_X = (36.0, 42.0)
 GROOVE_DEPTH = 2.0
 
+# Lead-in chamfers on the hook tip and the notch mouth, so the part slides over
+# the wall edges when snapping on instead of catching (less bending at the neck).
+LEAD_IN = 1.0
+
+# Printing flat (every layer holds the whole J: strongest for snapping on) would
+# leave the blade slot's ceiling hanging over air. A thin sacrificial skin across
+# the slot's bottom turns that into a short bridge. Slice it off before installing.
+SLOT_SKIN = 0.6
+
 # NEW: keel. The tooth is made deeper at full width, with the blade slot
 # running up through it, so the blade can't slip out sideways. Full width
 # (~6 mm each side of the slot) so nothing thin can snap off into the ice.
@@ -65,13 +74,21 @@ def profile_solid():
     """Crossbar + arm + hook, extruded THICK in Z."""
     pts = [
         (TOOTH_X0, BAR_Y0), (TOOTH_X0, BAR_Y1), (TOOTH_X1, BAR_Y1),
-        (TOOTH_X1, ARM_BOTTOM), (HOOK_X0, ARM_BOTTOM), (HOOK_X0, HOOK_TOP),
+        (TOOTH_X1, ARM_BOTTOM),
+        (HOOK_X0 + LEAD_IN, ARM_BOTTOM), (HOOK_X0, ARM_BOTTOM + LEAD_IN),   # chamfered hook tip
+        (HOOK_X0, HOOK_TOP - LEAD_IN), (HOOK_X0 + LEAD_IN, HOOK_TOP),
         (HOOK_LIP_X, HOOK_TOP), (HOOK_LIP_X, HOOK_LIP_Y), (ARM_X0, HOOK_LIP_Y),
         (ARM_X0, BAR_Y0),
     ]
+    pts = [p for i, p in enumerate(pts) if p != pts[i - 1]]
     body = extrude(Polygon(*pts, align=None), THICK, dir=(0, 0, 1))
-    return body - Pos(WALL_NOTCH_X[0], BAR_Y0 - 1, -1) * Box(
+    body -= Pos(WALL_NOTCH_X[0], BAR_Y0 - 1, -1) * Box(
         WALL_NOTCH_X[1] - WALL_NOTCH_X[0], WALL_NOTCH_DEPTH + 1, THICK + 2, align=MIN)
+    if LEAD_IN > 0:   # chamfer the notch mouth (inner edge)
+        x0, e = WALL_NOTCH_X[0], 0.01
+        tri = Polygon((x0 - LEAD_IN, BAR_Y0 - e), (x0 + e, BAR_Y0 - e), (x0 + e, BAR_Y0 + LEAD_IN), align=None)
+        body -= Pos(0, 0, -1) * extrude(tri, THICK + 2, dir=(0, 0, 1))
+    return body
 
 
 def roof():
@@ -107,13 +124,26 @@ def keel(depth=None):
     return extrude(Polygon(*pts, align=None), THICK, dir=(0, 0, 1))
 
 
-def clip(with_keel: bool, groove_w=None, keel_depth=None):
+def clip(with_keel: bool, groove_w=None, keel_depth=None, print_skin=False):
     keel_depth = KEEL_DEPTH if keel_depth is None else keel_depth
+    groove_w = GROOVE_W if groove_w is None else groove_w
     part = profile_solid() + roof()
-    if with_keel and keel_depth > 0:
-        part += keel(keel_depth)
-        return part - grooves(keel_depth, groove_w)
-    return part - grooves(0.0, groove_w)
+    if not (with_keel and keel_depth > 0):
+        return part - grooves(0.0, groove_w)
+    part += keel(keel_depth)
+    part -= grooves(keel_depth, groove_w)
+    if print_skin and SLOT_SKIN > 0:
+        # thin wall closing the slot along the keel's flat bottom (cut off after printing)
+        x0, x1 = KEEL_X[0], (KEEL_X[1] - keel_depth) if KEEL_TAPER else KEEL_X[1]
+        part += Pos(x0, BAR_Y0 - keel_depth, THICK / 2 - groove_w / 2 - 0.05) * Box(
+            x1 - x0, SLOT_SKIN, groove_w + 0.1, align=MIN)
+    return part
+
+
+def flat_for_print(part):
+    """Print orientation: lying flat as modelled (Z = tooth width, layers hold the whole J)."""
+    bb = part.bounding_box()
+    return Pos(-bb.min.X, -bb.min.Y, -bb.min.Z) * part
 
 
 # ------------------------------------------------------------ fit-test tops
@@ -160,9 +190,7 @@ if __name__ == "__main__":
         name = f"ice-tooth_keel{depth:g}"
         part = clip(with_keel=True, keel_depth=depth)
         write(part, name)
-        printable = part.rotate(Axis.Y, 90)
-        bb = printable.bounding_box()
-        printable = Pos(-bb.min.X, -bb.min.Y, -bb.min.Z) * printable
+        printable = flat_for_print(clip(with_keel=True, keel_depth=depth, print_skin=True))
         write(printable, f"{name}_print", step=False)
         mesher = Mesher()
         mesher.add_shape(printable)
@@ -170,11 +198,9 @@ if __name__ == "__main__":
     else:
         part = clip(with_keel=True)
         write(part, "ice-tooth_keel")
-        # Print standing on the arm's outer face, tooth pointing up. Flat would
-        # leave the half above the blade slot hanging over air (support in the slot).
-        printable = part.rotate(Axis.Y, 90)          # +X (arm face) -> down
-        bb = printable.bounding_box()
-        printable = Pos(-bb.min.X, -bb.min.Y, -bb.min.Z) * printable
+        # Print flat (strongest for snapping on; standing up it snapped at the neck
+        # above the notch). The slot skin makes the slot ceiling a short bridge.
+        printable = flat_for_print(clip(with_keel=True, print_skin=True))
         write(printable, "ice-tooth_keel_print", step=False)
         mesher = Mesher()
         mesher.add_shape(printable)
