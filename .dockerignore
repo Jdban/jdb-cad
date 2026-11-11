@@ -1,0 +1,3 @@
+# The image only needs the lock file; the repo is mounted at run time.
+*
+!requirements-lock.txt

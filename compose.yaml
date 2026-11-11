@@ -1,0 +1,25 @@
+# The repo is mounted, not copied: parts, notes and outputs stay in this folder.
+#   docker compose up -d viewer        http://localhost:8765 (tracker: /tracker)
+#   tools/cad part.py I5               run a part script / tool in the container
+services:
+  viewer:
+    build: .
+    image: jdb-cad
+    command: python viewer/serve.py 8765
+    environment:
+      VIEWER_BIND: 0.0.0.0            # inside the container; the port below is published on localhost only
+      # VIEWER_ALLOWED_HOSTS: cad.example.lan   # extra host names, only behind an auth proxy
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - .:/repo:ro                    # read-only: the viewer never writes
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    restart: unless-stopped
+
+  cad:
+    build: .
+    image: jdb-cad
+    volumes:
+      - .:/repo
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"   # files it writes belong to you, not root
+    profiles: ["tools"]               # not started by "up"; used via tools/cad

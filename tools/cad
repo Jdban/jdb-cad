@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Run Python inside the jdb-cad container, from the current directory (which must be in the repo).
+#   cd ice-maker && ../tools/cad ice_maker_clip.py I5
+#   tools/cad tools/regress.py
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REL="$(realpath --relative-to="$ROOT" "$PWD")"
+case "$REL" in ..*) echo "tools/cad: run it from inside the repo ($ROOT)" >&2; exit 1 ;; esac
+export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
+exec docker compose -f "$ROOT/compose.yaml" run --rm -T -w "/repo/$REL" cad python "$@"

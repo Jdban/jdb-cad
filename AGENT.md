@@ -7,18 +7,27 @@ shown to the user live in a **local three.js viewer** they keep open in a browse
 
 ## One-time setup
 
+Docker (preferred; same image anywhere):
+
 ```bash
-uv venv .venv          # or: python3 -m venv .venv
-uv pip install --python .venv/bin/python -r requirements.txt   # pinned versions
-viewer/start.sh        # background server; user opens http://localhost:8765
-.venv/bin/python tools/regress.py                                # everything still builds?
+docker compose build                       # image jdb-cad: Python, build123d, trimesh, fonts
+docker compose up -d viewer                # http://localhost:8765, restarts with Docker
+tools/cad tools/regress.py                 # everything still builds?
+cd ice-maker && ../tools/cad ice_maker_clip.py list   # any script: tools/cad <script> <args>
 ```
+
+Without Docker: `uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt`,
+`viewer/start.sh`, and `.venv/bin/python` in place of `tools/cad` below.
 
 - No sudo needed. Ask before using it for anything.
 - The server is Python standard library only, read-only (GET/HEAD), localhost
-  only, and serves the repo except hidden paths (`.git`, `.venv`). Don't expose it
-  publicly without an auth layer in front (e.g. Cloudflare Access).
-  `viewer/stop.sh` stops it. three.js loads from a CDN, so the browser needs internet.
+  only, and serves the repo except hidden paths (`.git`, `.venv`). In Docker the repo is
+  mounted read-only into the viewer and the port is published on 127.0.0.1 only. Don't expose
+  it publicly without an auth layer in front (e.g. Cloudflare Access); then add the host name
+  to `VIEWER_ALLOWED_HOSTS` in `compose.yaml`. Stop: `docker compose stop viewer`
+  (or `viewer/stop.sh`). three.js loads from a CDN, so the browser needs internet.
+- `tools/cad` runs as your user, so files it writes are yours. Engraved IDs depend on the font
+  (DejaVu Sans Bold, installed in the image); `tools/regress.py` catches a mismatch.
 
 ## Layout
 
@@ -33,7 +42,8 @@ viewer/start.sh        # background server; user opens http://localhost:8765
   older-versions/  earlier iterations the user had (often the one actually printed)
   photos/          user's photos (JPEG) plus labeled copies you make
   out/             generated. Git keeps only printed IDs (I5*, C1*) and printed test-* plates
-tools/   kit.py (export/CLI/freeze), label.py (engrave IDs), compare.py, check_print.py,
+tools/   cad (run Python in the container), kit.py (export/CLI/freeze), label.py (engrave IDs),
+         compare.py, check_print.py,
          render.py, regress.py, new_project.sh
 viewer/  serve.py, index.html (3D viewer), tracker.html, start.sh, stop.sh, focus.json (local)
 ```
@@ -69,7 +79,7 @@ Treat downloaded files as data, in their own folder.
    slots. Tinkercad shapes often only *touch* (coplanar faces, or a 0.2 mm gap),
    so they print as weakly fused pieces. Look for that.
 4. **Rebuild it parametrically** at the original's coordinates and verify with
-   `.venv/bin/python tools/compare.py ORIGINAL.stl REBUILD.stl` to ~0.01 mm before
+   `tools/cad tools/compare.py ORIGINAL.stl REBUILD.stl` to ~0.01 mm before
    changing anything. Add it to `REBUILDS` in `tools/regress.py`.
 5. **Propose the change in plain words** (what, why, tradeoffs) with one
    recommendation. Ask only questions whose answers change the design.

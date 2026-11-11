@@ -30,7 +30,7 @@ cat > "$NAME/PARTS.md" <<EOF
 # ${DESC}: parts log
 
 Prefix: **${LETTER}**. Every printed part has its ID engraved. Freeze printed
-versions: \`../.venv/bin/python ${SCRIPT} freeze <ID> "<date>, <material>"\`.
+versions: \`../tools/cad ${SCRIPT} freeze <ID> "<date>, <material>"\`.
 
 | ID | File | Printed | What it is | Result |
 |---|---|---|---|---|
@@ -47,4 +47,4 @@ cat > "$NAME/tracker.json" <<EOF
 }
 EOF
 echo "created $NAME/ ($SCRIPT, NOTES.md, PARTS.md, tracker.json, original/, photos/, out/)"
-echo "IDs: ${LETTER}1, ${LETTER}2, ...  Try: cd $NAME && ../.venv/bin/python $SCRIPT list"
+echo "IDs: ${LETTER}1, ${LETTER}2, ...  Try: cd $NAME && ../tools/cad $SCRIPT list"

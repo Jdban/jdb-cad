@@ -16,8 +16,11 @@ The workflow the agent follows is in [AGENT.md](AGENT.md). `ice-maker/` is a wor
 ## Quick start
 
 ```bash
-uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt
-viewer/start.sh                                   # http://localhost:8765 (tracker: /tracker)
-.venv/bin/python tools/regress.py                 # everything rebuilds and checks out
-tools/new_project.sh my-part M "What my part is"  # start a project from the template
+docker compose build && docker compose up -d viewer   # http://localhost:8765 (tracker: /tracker)
+tools/cad tools/regress.py                            # everything rebuilds and checks out
+tools/new_project.sh my-part M "What my part is"      # start a project from the template
+cd my-part && ../tools/cad my_part.py list            # run a part script in the container
 ```
+
+Without Docker: `uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt`,
+then `viewer/start.sh` and `.venv/bin/python` wherever `tools/cad` appears.

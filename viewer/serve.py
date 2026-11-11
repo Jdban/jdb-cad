@@ -79,11 +79,20 @@ def read_trackers():
     return out
 
 
+# Host names the browser may use. Extra names (e.g. a home server's name, behind an auth proxy)
+# come from VIEWER_ALLOWED_HOSTS, comma-separated.
+ALLOWED_HOSTS = {"localhost", "127.0.0.1", "::1"} | {
+    h.strip() for h in os.environ.get("VIEWER_ALLOWED_HOSTS", "").split(",") if h.strip()}
+# Address to listen on. 127.0.0.1 (default) = this machine only. In Docker it must be 0.0.0.0,
+# and compose.yaml publishes the port on the host's 127.0.0.1 only.
+BIND = os.environ.get("VIEWER_BIND", "127.0.0.1")
+
+
 class Handler(SimpleHTTPRequestHandler):
     def _allowed(self):
         """Read-only, local-only: refuse other hosts (DNS rebinding) and hidden paths."""
         host = self.headers.get("Host", "").rsplit(":", 1)[0].strip("[]")
-        if host not in ("localhost", "127.0.0.1", "::1"):
+        if host not in ALLOWED_HOSTS:
             self.send_error(403)
             return False
         # decode first: "/%2egit/HEAD" must be treated as "/.git/HEAD"
@@ -135,6 +144,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
-    server = ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, directory=str(ROOT)))
+    server = ThreadingHTTPServer((BIND, port), partial(Handler, directory=str(ROOT)))
     print(f"Viewer running at http://localhost:{port}/", flush=True)
     server.serve_forever()
