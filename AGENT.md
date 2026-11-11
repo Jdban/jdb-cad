@@ -43,8 +43,7 @@ Without Docker: `uv venv .venv && uv pip install --python .venv/bin/python -r re
   photos/          user's photos (JPEG) plus labeled copies you make
   out/             generated. Git keeps only printed IDs (I5*, C1*) and printed test-* plates
 tools/   cad (run Python in the container), kit.py (export/CLI/freeze), label.py (engrave IDs),
-         compare.py, check_print.py,
-         render.py, regress.py, new_project.sh
+         compare.py, check_print.py, render.py, regress.py, new_project.sh
 viewer/  serve.py, index.html (3D viewer), tracker.html, start.sh, stop.sh, focus.json (local)
 ```
 
