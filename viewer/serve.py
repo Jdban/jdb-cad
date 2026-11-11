@@ -70,6 +70,11 @@ def read_trackers():
         except (OSError, ValueError):
             continue
         data["dir"] = t.parent.name
+        for key, name in (("parts_md", "PARTS.md"), ("notes_md", "NOTES.md")):   # shown expandable on the page
+            try:
+                data[key] = (t.parent / name).read_text()
+            except OSError:
+                data[key] = ""
         out.append(data)
     return out
 

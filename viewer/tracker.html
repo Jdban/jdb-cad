@@ -59,6 +59,15 @@
   #zoom { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:5; cursor:zoom-out; }
   #zoom img { max-width:94vw; max-height:94vh; }
   .empty { color:var(--muted); font-style:italic; }
+  details.doc { margin-top:14px; border-top:1px solid var(--border); padding-top:8px; }
+  details.doc summary { cursor:pointer; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  .md { font-size:13px; color:#c9cdd4; overflow-wrap:anywhere; }
+  .md h1 { font-size:15px; margin:10px 0 4px; color:var(--text); } .md h2 { font-size:14px; margin:12px 0 4px; color:var(--text); }
+  .md h3 { margin:10px 0 4px; } .md p, .md ul { margin:4px 0; } .md ul { padding-left:20px; }
+  .md code { background:#1b1e24; border:1px solid var(--border); border-radius:4px; padding:0 4px; font-size:12px; }
+  .md .tbl { overflow-x:auto; } .md table { border-collapse:collapse; margin:6px 0; min-width:600px; }
+  .md th, .md td { border:1px solid var(--border); padding:4px 6px; text-align:left; vertical-align:top; }
+  .md th { color:var(--text); background:#1b1e24; }
   @media (max-width:600px) { main { padding:12px; } .row { grid-template-columns:1fr; } .links { margin-left:0; } }
 </style>
 </head>
@@ -78,6 +87,37 @@ const ORDER = { need: 0, verify: 1, pending: 2, have: 3 };
 const LABEL = { need: 'need', verify: 'check', pending: 'testing', have: 'have' };
 const KIND = { measure: 'measurement', photo: 'photo', decide: 'decision', test: 'test' };
 const OPEN = new Set(['need', 'verify']);
+// Minimal markdown for PARTS.md / NOTES.md: headings, lists (with wrapped lines), tables, **bold**, `code`.
+function inline(t) {
+  return esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+}
+function md(text) {
+  const out = []; let list = null, para = null, table = null;
+  const flush = () => {
+    if (list) out.push('<ul>' + list.map(li => `<li>${inline(li)}</li>`).join('') + '</ul>');
+    if (para) out.push(`<p>${inline(para)}</p>`);
+    if (table) {
+      const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const [head, , ...body] = table;
+      out.push('<div class="tbl"><table><tr>' + cells(head).map(c => `<th>${inline(c)}</th>`).join('') + '</tr>' +
+        body.map(r => '<tr>' + cells(r).map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('') + '</table></div>');
+    }
+    list = para = table = null;
+  };
+  for (const raw of (text || '').split('\n')) {
+    const line = raw.trimEnd();
+    let m;
+    if (!line.trim()) { flush(); continue; }
+    if ((m = line.match(/^(#{1,3})\s+(.*)/))) { flush(); out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); continue; }
+    if (line.startsWith('|')) { if (!table) { flush(); table = []; } table.push(line); continue; }
+    if ((m = line.match(/^\s*[-*]\s+(.*)/))) { if (!list) { flush(); list = []; } list.push(m[1]); continue; }
+    if (list && /^\s+/.test(line)) { list[list.length - 1] += ' ' + line.trim(); continue; }
+    if (table) flush();
+    para = para ? para + ' ' + line.trim() : line.trim();
+  }
+  flush();
+  return out.join('');
+}
 function esc(t) { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; }
 function url(dir, file) { return '/' + [dir, ...file.split('/')].map(encodeURIComponent).join('/'); }
 function daysAgo(date) {
@@ -170,6 +210,8 @@ function render(projects) {
       <h3>Open</h3>${active.map(row).join('') || '<p class="empty">nothing open</p>'}
       ${answered.length ? `<details class="answered"><summary>Answered (${answered.length})</summary>${answered.map(doneRow).join('')}</details>` : ''}
       <h3>Photos</h3><div class="photos">${photos.map(photo).join('') || '<p class="empty">none</p>'}</div>
+      ${p.parts_md ? `<details class="doc" data-key="${esc(p.dir)}/parts"><summary>Parts log (every print and how it went)</summary><div class="md">${md(p.parts_md)}</div></details>` : ''}
+      ${p.notes_md ? `<details class="doc" data-key="${esc(p.dir)}/notes"><summary>Notes (design, constraints, lessons)</summary><div class="md">${md(p.notes_md)}</div></details>` : ''}
     </section>`;
   }).join('');
   main.querySelectorAll('button.copy').forEach(b => b.onclick = () => copySheet(b, answerSheet(projects[+b.dataset.project])));
@@ -186,9 +228,11 @@ async function poll() {
     if (pageVersion === null) pageVersion = data.page;
     else if (data.page !== pageVersion) { location.reload(); return; }
     const openDetails = [...document.querySelectorAll('details.answered[open]')].length;
+    const openDocs = new Set([...document.querySelectorAll('details.doc[open]')].map(d => d.dataset.key));
     const sig = JSON.stringify(data.projects);
     if (sig !== last) { last = sig; render(data.projects);
-      if (openDetails) document.querySelectorAll('details.answered').forEach(d => d.open = true); }
+      if (openDetails) document.querySelectorAll('details.answered').forEach(d => d.open = true);
+      document.querySelectorAll('details.doc').forEach(d => { if (openDocs.has(d.dataset.key)) d.open = true; }); }
   } catch (e) { /* server restarting */ }
   setTimeout(poll, 3000);
 }
