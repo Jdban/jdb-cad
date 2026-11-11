@@ -61,7 +61,8 @@
   .empty { color:var(--muted); font-style:italic; }
   details.doc { margin-top:14px; border-top:1px solid var(--border); padding-top:8px; }
   details.doc summary { cursor:pointer; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
-  .md { font-size:13px; color:#c9cdd4; overflow-wrap:anywhere; }
+  .md { font-size:13px; color:#c9cdd4; overflow-wrap:break-word; }
+  .md td:first-child, .md th:first-child, .md td code { white-space:nowrap; }
   .md h1 { font-size:15px; margin:10px 0 4px; color:var(--text); } .md h2 { font-size:14px; margin:12px 0 4px; color:var(--text); }
   .md h3 { margin:10px 0 4px; } .md p, .md ul { margin:4px 0; } .md ul { padding-left:20px; }
   .md code { background:#1b1e24; border:1px solid var(--border); border-radius:4px; padding:0 4px; font-size:12px; }
