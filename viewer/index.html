@@ -48,6 +48,7 @@
   .card td.w { color:var(--muted); font-size:11px; }
   .card .note { margin-top:8px; font-size:12px; color:#ffcf6b; }
   .badge { font-size:10px; color:var(--accent); border:1px solid var(--accent); border-radius:3px; padding:0 3px; margin-left:4px; }
+  #view.dropping { outline:3px dashed var(--accent); outline-offset:-6px; }
   #help { position:absolute; right:12px; top:12px; color:var(--muted); font-size:11px; text-align:right; pointer-events:none; }
   @media (max-width: 700px) { #app { flex-direction:column; } #side { width:100%; height:40%; } }
 </style>
@@ -99,7 +100,7 @@
     <div id="hud"></div>
     <div id="settings"></div>
     <div id="mlabel"></div>
-    <div id="help">drag: rotate · right-drag: pan · scroll: zoom<br>grid: 10 mm squares</div>
+    <div id="help">drag: rotate · right-drag: pan · scroll: zoom<br>drop a .stl / .3mf / .obj here to view it<br>grid: 10 mm squares</div>
   </div>
 </div>
 <script type="module">
@@ -107,6 +108,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { ThreeMFLoader } from 'three/addons/loaders/3MFLoader.js';
 
 THREE.Object3D.DEFAULT_UP.set(0, 0, 1); // models are Z-up (mm)
 
@@ -150,24 +152,46 @@ function makeGrid(size) {
 scene.add(new THREE.AxesHelper(20));   // red X, green Y, blue Z (world axes)
 makeGrid(200);
 
-const models = new Map(); // path -> {mtime, color, visible, obj, info}
+const models = new Map(); // path -> {mtime, color, visible, obj, info, data (dropped files only)}
+const DROP = 'dropped:';   // path prefix for files dropped onto the page
 let colorIdx = 0;
 const stl = new STLLoader();
 const objLoader = new OBJLoader();
+const tmfLoader = new ThreeMFLoader();
 
 function fmt(n) { return n.toFixed(2); }
+
+// 3MF objects carry build transforms (a Bambu project puts parts mid-bed): bake them into
+// the geometry so overhangs, the bed check and measurements see real coordinates.
+function flatten(root) {
+  root.updateMatrixWorld(true);
+  const out = new THREE.Group();
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    const g = o.geometry.clone().applyMatrix4(o.matrixWorld);
+    g.deleteAttribute('color'); g.deleteAttribute('uv');
+    g.computeVertexNormals();
+    out.add(new THREE.Mesh(g));
+  });
+  return out;
+}
 
 async function loadModel(path, mtime) {
   const url = '/' + path.split('/').map(encodeURIComponent).join('/') + '?t=' + mtime;
   const m = models.get(path);
+  const ext = path.toLowerCase().split('.').pop();
+  // dropped files live only in this browser tab (m.data); everything else comes from the server
+  const data = m.data || (ext === 'obj' ? await (await fetch(url)).text() : await (await fetch(url)).arrayBuffer());
   let group;
-  if (path.toLowerCase().endsWith('.stl')) {
-    const geom = await stl.loadAsync(url);
+  if (ext === 'stl') {
+    const geom = stl.parse(data);
     geom.computeVertexNormals();
     group = new THREE.Group();
     group.add(new THREE.Mesh(geom));
+  } else if (ext === '3mf') {
+    group = flatten(tmfLoader.parse(data));
   } else {
-    group = await objLoader.loadAsync(url);
+    group = objLoader.parse(data);
   }
   const zmin = new THREE.Box3().setFromObject(group).min.z;
   group.traverse(o => {
@@ -402,7 +426,7 @@ function updateHud() {
   for (const [path, m] of models) {
     if (!m.visible || !m.info) continue;
     const s = m.info.size, b = m.info.box;
-    lines.push(`${path.split('/').pop()}\n  size  ${fmt(s.x)} × ${fmt(s.y)} × ${fmt(s.z)} mm\n  min   ${fmt(b.min.x)}, ${fmt(b.min.y)}, ${fmt(b.min.z)}\n  tris  ${m.info.tris}`);
+    lines.push(`${path.replace(DROP, '').split('/').pop()}\n  size  ${fmt(s.x)} × ${fmt(s.y)} × ${fmt(s.z)} mm\n  min   ${fmt(b.min.x)}, ${fmt(b.min.y)}, ${fmt(b.min.z)}\n  tris  ${m.info.tris}`);
   }
   document.getElementById('hud').textContent = lines.join('\n') || 'nothing shown';
   document.getElementById('hud').style.display = 'block';
@@ -439,7 +463,7 @@ function renderList(force = false) {
   if (!force && sig === listSig) return;
   listSig = sig;
   list.innerHTML = '';
-  const folderOf = p => p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '(top level)';
+  const folderOf = p => p.startsWith(DROP) ? 'dropped here (only in this tab, not saved)' : p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '(top level)';
   const entries = [...models].sort((a, b) =>
     folderOf(a[0]).localeCompare(folderOf(b[0])) || b[1].mtime - a[1].mtime);
   let lastFolder = null;
@@ -463,10 +487,16 @@ function renderList(force = false) {
     const when = ago < 60 ? `${ago}s ago` : ago < 3600 ? `${Math.round(ago / 60)}m ago` : new Date(m.mtime * 1000).toLocaleString();
     div.innerHTML = `<input type="checkbox" ${m.visible ? 'checked' : ''}><div style="flex:1"><div class="name"></div><div class="meta">${(m.size / 1024).toFixed(1)} KB · ${when}</div></div><a class="dl" title="Download">⬇</a>`;
     const dl = div.querySelector('.dl');
-    dl.href = '/' + path.split('/').map(encodeURIComponent).join('/');
-    dl.download = path.split('/').pop();
-    dl.onclick = ev => ev.stopPropagation();
-    div.querySelector('.name').textContent = path.split('/').pop();
+    if (m.data) {   // dropped: offer "remove" instead of download
+      dl.textContent = '✕'; dl.title = 'Remove';
+      dl.onclick = ev => { ev.stopPropagation(); if (m.obj) { scene.remove(m.obj); m.obj.traverse(o => { o.geometry?.dispose(); o.material?.dispose(); }); }
+        models.delete(path); applyStyle(); renderList(true); };
+    } else {
+      dl.href = '/' + path.split('/').map(encodeURIComponent).join('/');
+      dl.download = path.split('/').pop();
+      dl.onclick = ev => ev.stopPropagation();
+    }
+    div.querySelector('.name').textContent = path.replace(DROP, '').split('/').pop();
     if (m.settings?.settings?.length) div.querySelector('.name').insertAdjacentHTML('beforeend', '<span class="badge">settings</span>');
     div.title = 'Click name: show only this · checkbox: add/remove';
     div.querySelector('input').onclick = async (ev) => {
@@ -521,7 +551,7 @@ async function poll() {
         if (m.obj) await loadModel(it.path, it.mtime);
       }
     }
-    for (const p of [...models.keys()]) if (!seen.has(p)) { const m = models.get(p); if (m.obj) scene.remove(m.obj); models.delete(p); }
+    for (const p of [...models.keys()]) if (!seen.has(p) && !models.get(p).data) { const m = models.get(p); if (m.obj) scene.remove(m.obj); models.delete(p); }
     // keep list ordered newest first
     const sorted = new Map([...models].sort((a, b) => b[1].mtime - a[1].mtime));
     models.clear(); for (const [k, v] of sorted) models.set(k, v);
@@ -556,6 +586,28 @@ async function poll() {
   }
   setTimeout(poll, 1500);
 }
+
+// Drag a .stl / .3mf / .obj onto the page to look at it. It is read in the browser only:
+// the server stays read-only and nothing is saved (put the file in a project folder to keep it).
+view.addEventListener('dragover', e => { e.preventDefault(); view.classList.add('dropping'); });
+view.addEventListener('dragleave', () => view.classList.remove('dropping'));
+view.addEventListener('drop', async e => {
+  e.preventDefault(); view.classList.remove('dropping');
+  const files = [...e.dataTransfer.files].filter(f => /\.(stl|3mf|obj)$/i.test(f.name));
+  if (!files.length) { document.getElementById('status').textContent = 'drop a .stl, .3mf or .obj'; return; }
+  for (const p of models.keys()) await show(p, false);
+  for (const f of files) {
+    const path = DROP + f.name;
+    const data = /\.obj$/i.test(f.name) ? await f.text() : await f.arrayBuffer();
+    const old = models.get(path);
+    if (old?.obj) scene.remove(old.obj);
+    models.set(path, { path, mtime: Date.now() / 1000, size: f.size, color: colorFor(path), baseColor: colorFor(path),
+                       visible: false, obj: null, data });
+    try { await show(path, true); }
+    catch (err) { models.delete(path); document.getElementById('status').textContent = `couldn't read ${f.name}`; console.error(err); }
+  }
+  applyStyle(); renderList(true); setView('iso');
+});
 
 document.getElementById('wire').onchange = applyStyle;
 document.getElementById('edges').onchange = applyStyle;

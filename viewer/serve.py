@@ -1,6 +1,6 @@
 """Tiny local 3D model viewer server.
 
-Serves the project folder plus /api/models, a JSON list of every .stl/.obj
+Serves the project folder plus /api/models, a JSON list of every .stl/.obj/.3mf
 under it with modification times, so the page can auto-reload changed models.
 
 Usage: python3 viewer/serve.py [port]
@@ -14,7 +14,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-EXTS = {".stl", ".obj"}
+EXTS = {".stl", ".obj", ".3mf"}
 SKIP_DIRS = {".venv", "node_modules", ".git", "viewer"}
 
 
@@ -34,6 +34,10 @@ def list_models():
         for name in filenames:
             p = Path(dirpath) / name
             if p.suffix.lower() in EXTS:
+                # kit writes every _print.3mf next to a same-named .stl: list the .stl only.
+                # A .3mf on its own (a download, a Bambu project) is listed.
+                if p.suffix.lower() == ".3mf" and p.with_suffix(".stl").exists():
+                    continue
                 st = p.stat()
                 out.append({
                     "path": p.relative_to(ROOT).as_posix(),
@@ -130,8 +134,9 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
-        if self.path in ("/", "/index.html"):
-            self.path = "/viewer/index.html"
+        route, _, query = self.path.partition("?")
+        if route in ("/", "/index.html"):   # keep ?show=... (tracker "view" links) working
+            self.path = "/viewer/index.html" + ("?" + query if query else "")
         super().do_GET()
 
     def end_headers(self):
