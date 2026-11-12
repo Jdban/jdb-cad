@@ -20,8 +20,8 @@ Without Docker: `uv venv .venv && uv pip install --python .venv/bin/python -r re
 `viewer/start.sh`, and `.venv/bin/python` in place of `tools/cad` below.
 
 - No sudo needed. Ask before using it for anything.
-- The server is Python standard library only, read-only (GET/HEAD), localhost
-  only, and serves the repo except hidden paths (`.git`, `.venv`). In Docker the repo is
+- The server is Python standard library only, localhost only, and serves the repo except
+  hidden paths (`.git`, `.venv`). It is read-only except for uploads into `inbox/` (see Inbox). In Docker the repo is
   mounted read-only into the viewer and the port is published on 127.0.0.1 only. Don't expose
   it publicly without an auth layer in front (e.g. Cloudflare Access); then add the host name
   to `VIEWER_ALLOWED_HOSTS` in `compose.yaml`. Stop: `docker compose stop viewer`
