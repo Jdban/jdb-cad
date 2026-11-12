@@ -9,7 +9,7 @@ Parametric 3D-printing parts, built with an AI coding agent.
 - A small local viewer ([three.js](https://threejs.org)) shows models live as they change, with
   print-settings cards, section / measure / overhang tools, and a project tracker page.
 
-The workflow the agent follows is in [AGENT.md](AGENT.md). `ice-maker/` is a worked example
+The workflow the agent follows is in [AGENTS.md](AGENTS.md). `ice-maker/` is a worked example
 (a replacement stripper tooth for an ice maker, with its fit-test plates and parts log), and
 `examples/bracket.py` is the template for new parts.
 
