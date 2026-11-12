@@ -114,6 +114,14 @@ IDs are a project letter + number (`I6`, `B1`, `C3`); fit-test pieces get labels
 that name the variable (`K3` = 3 mm keel, `N6.6` = 6.6 mm notch). Use the ID
 whenever you talk about a part.
 
+## Inbox
+
+The tracker page has an upload box: files plus a note land in `inbox/<date_time_id>/`
+(`note.txt` holds the note). When the user says "check the inbox" (or at the start of a session
+if it isn't empty): read each batch, start a project (`tools/new_project.sh`) or add to one
+(photos to `photos/`, models to `original/`), list them in its tracker, then delete the batch.
+The inbox is private (gitignored) and the only folder the server can write to.
+
 ## Project tracker
 
 `http://localhost:8765/tracker` renders each project's `tracker.json`. It is the

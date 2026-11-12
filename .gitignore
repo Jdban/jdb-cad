@@ -22,3 +22,7 @@ examples/out/
 # private projects (not shared): remove a line to start tracking that project
 changing-table/
 bee-vac/
+
+# inbox: uploads from the tracker page (private); keep the folder itself
+inbox/*
+!inbox/README.md

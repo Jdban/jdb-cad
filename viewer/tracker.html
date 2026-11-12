@@ -59,6 +59,20 @@
   #zoom { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:5; cursor:zoom-out; }
   #zoom img { max-width:94vw; max-height:94vh; }
   .empty { color:var(--muted); font-style:italic; }
+  #inbox { max-width:1100px; margin:16px auto 0; padding:0 16px; }
+  #inbox .project { display:grid; gap:10px; }
+  #inbox h2 { font-size:16px; margin:0; }
+  #inbox .sub { color:var(--muted); font-size:13px; margin:0; }
+  #drop { border:2px dashed var(--border); border-radius:8px; padding:14px; text-align:center; color:var(--muted); cursor:pointer; }
+  #drop.over { border-color:var(--pending); color:var(--text); }
+  #picked { font-size:13px; color:#c9cdd4; }
+  #note { width:100%; min-height:60px; background:#1b1e24; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px; font:inherit; }
+  .send-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  #sendmsg { font-size:13px; color:var(--muted); }
+  #sendmsg.ok { color:var(--have); } #sendmsg.err { color:var(--need); }
+  .batch { font-size:13px; border-top:1px dashed var(--border); padding:6px 0; }
+  .batch .date { color:var(--muted); margin-right:8px; }
+  .batch .note { color:#c9cdd4; white-space:pre-wrap; }
   details.doc { margin-top:14px; border-top:1px solid var(--border); padding-top:8px; }
   details.doc summary { cursor:pointer; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
   .md { font-size:13px; color:#c9cdd4; overflow-wrap:break-word; }
@@ -81,6 +95,17 @@
   </div>
   <a href="/">← 3D viewer</a>
 </header>
+<section id="inbox"><div class="project">
+  <h2>Inbox: send me files</h2>
+  <p class="sub">Photos, models (.stl / .3mf / .step), PDFs, with a note. They go to the <code>inbox/</code> folder;
+    tell me "check the inbox" and I'll start a project or add them to one.</p>
+  <label id="drop" for="files">Drop files here, or tap to choose (photos work from a phone)</label>
+  <input type="file" id="files" multiple hidden>
+  <div id="picked"></div>
+  <textarea id="note" placeholder="What is it? e.g. &quot;New project: bee feeder lid. Photos of the broken one, ruler in shot&quot;, or &quot;more photos for the bee vac&quot;"></textarea>
+  <div class="send-row"><button class="copy" id="send">Send to inbox</button><span id="sendmsg"></span></div>
+  <div id="batches"></div>
+</div></section>
 <main id="main"><p class="empty">loading…</p></main>
 <div id="zoom"><img alt=""></div>
 <script>
@@ -222,6 +247,55 @@ function render(projects) {
 }
 document.getElementById('zoom').onclick = e => { e.currentTarget.style.display = 'none'; };
 
+// ---- inbox upload ---------------------------------------------------------------------
+let picked = [];
+const fileInput = document.getElementById('files'), drop = document.getElementById('drop');
+function showPicked() {
+  document.getElementById('picked').textContent = picked.length
+    ? picked.map(f => `${f.name} (${(f.size / 1048576).toFixed(1)} MB)`).join(' · ') : '';
+}
+fileInput.onchange = () => { picked = [...picked, ...fileInput.files]; fileInput.value = ''; showPicked(); };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); picked = [...picked, ...e.dataTransfer.files]; showPicked(); };
+async function post(batch, name, body) {
+  const q = new URLSearchParams({ name }); if (batch) q.set('batch', batch);
+  const r = await fetch('/api/inbox?' + q, { method: 'POST', headers: { 'X-Inbox': '1' }, body });
+  if (!r.ok) throw new Error(`${name}: ${r.status === 415 ? 'file type not accepted' : r.status === 413 ? 'too big (200 MB max)' : 'server said ' + r.status}`);
+  return (await r.json()).batch;
+}
+document.getElementById('send').onclick = async () => {
+  const btn = document.getElementById('send'), msg = document.getElementById('sendmsg');
+  const note = document.getElementById('note').value.trim();
+  if (!picked.length && !note) { msg.className = 'err'; msg.textContent = 'Add files or a note first.'; return; }
+  btn.disabled = true; msg.className = '';
+  let batch = '', done = 0;
+  const failed = [];
+  try {
+    if (note) { batch = await post(batch, 'note.txt', new Blob([note + '\n'], { type: 'text/plain' }));
+                document.getElementById('note').value = ''; }   // sent: a retry won't send it twice
+    for (const f of picked) {
+      msg.textContent = `Sending ${done + 1} of ${picked.length}: ${f.name}…`;
+      try { batch = await post(batch, f.name, f); done++; } catch (e) { failed.push(e.message); }
+    }
+    msg.className = failed.length ? 'err' : 'ok';
+    msg.textContent = (done || note ? `Sent ${done} file${done === 1 ? '' : 's'}${note ? ' and the note' : ''}. ` : '') + failed.join('; ');
+    if (!failed.length) { picked = []; showPicked(); document.getElementById('note').value = ''; }
+    else picked = picked.filter(f => failed.some(m => m.startsWith(f.name + ':')));
+    showPicked();
+  } catch (e) { msg.className = 'err'; msg.textContent = 'Not sent: ' + e.message; }
+  btn.disabled = false;
+};
+function renderInbox(batches) {
+  const el = document.getElementById('batches');
+  el.innerHTML = batches.length ? '<h3>Waiting in the inbox</h3>' + batches.slice(0, 8).map(b => {
+    const [d, t] = b.batch.split('_');
+    return `<div class="batch"><span class="date">${esc(d)} ${esc(t.slice(0, 2))}:${esc(t.slice(2, 4))}</span>
+      ${b.files.length} file${b.files.length === 1 ? '' : 's'}${b.files.length ? ': ' + b.files.map(f => esc(f.name)).join(', ') : ''}
+      ${b.note ? `<div class="note">${esc(b.note.trim())}</div>` : ''}</div>`;
+  }).join('') : '';
+}
+
 let last = '', pageVersion = null;
 async function poll() {
   try {
@@ -230,6 +304,7 @@ async function poll() {
     else if (data.page !== pageVersion) { location.reload(); return; }
     const openDetails = [...document.querySelectorAll('details.answered[open]')].length;
     const openDocs = new Set([...document.querySelectorAll('details.doc[open]')].map(d => d.dataset.key));
+    renderInbox(data.inbox || []);
     const sig = JSON.stringify(data.projects);
     if (sig !== last) { last = sig; render(data.projects);
       if (openDetails) document.querySelectorAll('details.answered').forEach(d => d.open = true);

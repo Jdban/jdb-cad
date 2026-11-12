@@ -12,7 +12,9 @@ services:
     ports:
       - "127.0.0.1:8765:8765"
     volumes:
-      - .:/repo:ro                    # read-only: the viewer never writes
+      - .:/repo:ro                    # read-only, except:
+      - ./inbox:/repo/inbox           # uploads from the tracker page (the only place it writes)
+      - /etc/localtime:/etc/localtime:ro   # inbox folder names in local time
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     restart: unless-stopped
 
