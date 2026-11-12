@@ -1,41 +1,31 @@
 {
   "project": "Ice maker: stripper tooth",
-  "status": "Nothing urgent: glance at I5 now and then, and send a photo after a few ice cycles.",
+  "status": "Nothing needed. I5 is in use and working; tell me if it ever slides, cracks or jams.",
   "items": [
     {
       "kind": "test",
-      "state": "pending",
+      "state": "have",
       "what": "I5 over a few ice cycles",
       "parts": [
         "I5"
       ],
       "asked": "2026-11-09",
-      "how": "Still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it."
+      "how": "Still in place (not slid sideways), no ice frozen onto the keel, no cracks, ejector not catching on it.",
+      "value": "Working really well after ~3 days: still in place, no jams",
+      "answered": "2026-11-12"
     },
     {
       "kind": "test",
-      "state": "pending",
+      "state": "have",
       "what": "Water line after a normal fill",
       "parts": [
         "test-K"
       ],
       "asked": "2026-11-09",
       "how": "After a full-looking fill, dip K5 and K8: the deepest that comes out dry with a few mm to spare could set a deeper keel.",
-      "why": "Ice must not freeze around the keel. The first fill was tiny (low water pressure)."
-    },
-    {
-      "kind": "photo",
-      "state": "need",
-      "what": "I5 after a few ice cycles",
-      "asked": "2026-11-09",
-      "how": "Same angle as the 'I5 installed' photo, to compare its position."
-    },
-    {
-      "kind": "photo",
-      "state": "need",
-      "what": "Tray with a normal fill of water",
-      "asked": "2026-11-09",
-      "how": "From the side, at the tooth, so the water level vs the blade is visible."
+      "why": "Ice must not freeze around the keel. The first fill was tiny (low water pressure).",
+      "value": "Not needed: I5 works, no deeper keel planned",
+      "answered": "2026-11-12"
     },
     {
       "kind": "measure",

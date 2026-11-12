@@ -13,7 +13,7 @@ frozen (see `out/<ID>.params.json`); never rebuild over them, make a new ID.
 | test-K: K3 / K5 / K8 | `out/test-K_print` | 2026-11-08, draft | Tops only, keel depth 3 / 5 / 8 mm | All dry after the first (small) fill; retest after a normal fill |
 | test-EW: E30 / E26 / W30 | `out/test-EW_print` | 2026-11-09, draft | Tops only, 3 mm keel: keel ends earlier (E30, E26) or slot 5 mm near the wall (W30) | W30 best; E30 tilted; E26 worst. W30's 5 mm still too narrow |
 | test-N: N5.6 / N6.1 / N6.6 / N7.1 | `out/test-N_print` | 2026-11-09, draft | I4 top + 12 mm arm stub, notch length to the arm | **N6.6 fits** |
-| I5 | `out/I5_print` | 2026-11-09, colored PETG, flat | Slot 7 mm near the wall (blade base 6.37 mm), notch 6.6, arm +0.5, slot skin | **Installed, fits, doesn't slide.** Watching over ice cycles |
+| I5 | `out/I5_print` | 2026-11-09, colored PETG, flat | Slot 7 mm near the wall (blade base 6.37 mm), notch 6.6, arm +0.5, slot skin | **Installed, fits, doesn't slide.** Working really well after ~3 days of ice cycles (2026-11-12) |
 
 Designed but not printed (definitions only, no files): I4 (superseded by I5 before
 printing); earlier experiments (5 mm keel, arm +1.5 mm, W6/W7/W8 slot widths: the
